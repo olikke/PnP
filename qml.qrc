@@ -28,5 +28,8 @@
         <file>QML/MTK_ComboBox.qml</file>
         <file>ASSETS/icon/pause_circle_FILL0_wght400_GRAD0_opsz48.svg</file>
         <file>ASSETS/icon/add_circle_FILL0_wght400_GRAD0_opsz48.svg</file>
+        <file>QML/TopBar.qml</file>
+        <file>QML/ControlPanel.qml</file>
+        <file>QML/FramesPanel.qml</file>
     </qresource>
 </RCC>

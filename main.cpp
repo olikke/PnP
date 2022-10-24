@@ -10,17 +10,17 @@
 #include "calibration.h"
 #include "imageprovider.h"
 #include "appconfigMini.h"
+#include "framemodel.h"
 
 int main(int argc, char *argv[])
 {
-//    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
 #ifdef QT_WIDGETS_LIB
     QApplication app(argc, argv);
 #else
     QGuiApplication app(argc, argv);
 #endif
 
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setApplicationName(QStringLiteral("Photosurface"));
     QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
 
@@ -33,6 +33,9 @@ int main(int argc, char *argv[])
 
     AppConfigMini* appConfig=new AppConfigMini(&app);
     context->setContextProperty("appConfig",appConfig);
+
+    FrameModel* frameModel=new FrameModel(&app);
+    context->setContextProperty("frameModel",frameModel);
 
     engine->load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine->rootObjects().isEmpty())  return -1;

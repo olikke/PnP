@@ -15,10 +15,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    framemodel.cpp \
         main.cpp \
     calibration.cpp \
     grabopencv.cpp \
-    imageloader.cpp \
     imageprovider.cpp \
     appconfigMini.cpp
 
@@ -49,7 +49,7 @@ unix|win32: LIBS += -lopencv_calib3d
 
 HEADERS += \
     calibration.h \
+    framemodel.h \
     grabopencv.h \
-    imageloader.h \
     imageprovider.h \
     appconfigMini.h
