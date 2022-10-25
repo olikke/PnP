@@ -2,33 +2,34 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
-        <file>QML/MTK_Label.qml</file>
-        <file>QML/MTK_RoundButton.qml</file>
         <file>QML/Style.qml</file>
         <file>qmldir</file>
         <file>ASSETS/fonts/RobotoCondensed-Regular.otf</file>
-        <file>QML/MTK_IconButton.qml</file>
-        <file>QML/MTK_VSeparator.qml</file>
-        <file>QML/MTK_HSeparator.qml</file>
-        <file>QML/MTK_FramedLabel.qml</file>
-        <file>QML/MTK_Switch.qml</file>
-        <file>QML/MTK_SwitchButton_2.qml</file>
-        <file>QML/MTK_ComboBox.qml</file>
-        <file>QML/TopBar.qml</file>
-        <file>QML/ControlPanel.qml</file>
-        <file>QML/FramesPanel.qml</file>
-        <file>QML/MTK_Checkbox.qml</file>
-        <file>QML/CameraPanel.qml</file>
         <file>ASSETS/icon/add.svg</file>
         <file>ASSETS/icon/calculate.svg</file>
         <file>ASSETS/icon/photo.svg</file>
         <file>ASSETS/icon/play.svg</file>
         <file>ASSETS/icon/close.svg</file>
         <file>ASSETS/icon/delete.svg</file>
-        <file>QML/Tabbar.qml</file>
-        <file>QML/Tabbutton.qml</file>
         <file>ASSETS/icon/chess-horse.svg</file>
         <file>ASSETS/icon/folder.svg</file>
         <file>ASSETS/icon/stop.svg</file>
+        <file>QML/ElementBase/MTK_Checkbox.qml</file>
+        <file>QML/ElementBase/MTK_ComboBox.qml</file>
+        <file>QML/ElementBase/MTK_FramedLabel.qml</file>
+        <file>QML/ElementBase/MTK_HSeparator.qml</file>
+        <file>QML/ElementBase/MTK_IconButton.qml</file>
+        <file>QML/ElementBase/MTK_Label.qml</file>
+        <file>QML/ElementBase/MTK_RoundButton.qml</file>
+        <file>QML/ElementBase/MTK_Switch.qml</file>
+        <file>QML/ElementBase/MTK_SwitchButton_2.qml</file>
+        <file>QML/ElementBase/Tabbar.qml</file>
+        <file>QML/ElementBase/Tabbutton.qml</file>
+        <file>QML/ElementBase/TopBar.qml</file>
+        <file>ASSETS/icon/search.svg</file>
+        <file>QML/Calibration/CalibrationControl.qml</file>
+        <file>QML/Calibration/CalibrationPanel.qml</file>
+        <file>QML/Camera/CameraPanel.qml</file>
+        <file>QML/Camera/CameraControl.qml</file>
     </qresource>
 </RCC>

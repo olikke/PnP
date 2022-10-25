@@ -2,9 +2,12 @@ import QtQuick 2.9
 import Qt.labs.folderlistmodel 1.0
 import QtQuick.Dialogs 1.0
 
-Rectangle {
+import "qrc:/QML/ElementBase"
+import "qrc:/QML"
+
+Row {
     id: root
-    color: Style.currentTheme.background
+    spacing: Style.connectionWidth
 
     function openFileDialog() {openDialog.open()}
 
@@ -12,7 +15,6 @@ Rectangle {
 
     FileDialog {
         id: openDialog
-        property bool left
         title: "Открыть папку с файлами"
         folder: _lastfolder
         selectFolder: true
@@ -22,19 +24,10 @@ Rectangle {
         }
     }
 
-    ControlPanel{
-        id: controlPanel
-        width: 400
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        onOpenFileDialog: framesPanel.openFileDialog()
-    }
-
     Flickable{
         id: flick
-        anchors.fill: parent
-        anchors.rightMargin: controlPanel.width
+        width: parent.width-calibrationControl.width-parent.spacing
+        height: parent.height
         flickableDirection: Flickable.VerticalFlick
         contentHeight: grid.height+60
         clip: true
@@ -77,17 +70,23 @@ Rectangle {
                         Row{
                             width: parent.width
                             spacing: Style.panelsMargins
+                            property int awidth: parent.width-cb.width-l2.width-spacing*2
                             MTK_Checkbox{
+                                id: cb
                                 height: 24
                                 width: 30
                                 uncheckedColor: Style.currentTheme.foreground
                                 checked: true
                             }
                             MTK_Label{
+                                id: l1
                                 text: fileName
                                 anchors.verticalCenter: parent.verticalCenter
+                                width: contentWidth>parent.awidth? parent.awidth: contentWidth
+                                clip: true
                             }
                             MTK_Label{
+                                id: l2
                                 text: image.sourceSize.width+"x"+image.sourceSize.height
                                 anchors.verticalCenter: parent.verticalCenter
                             }
@@ -96,5 +95,12 @@ Rectangle {
                 }
             }
         }
+    }
+
+    CalibrationControl{
+        id: calibrationControl
+        width: Style.sidePanel
+        height: parent.height
+        onOpenFileDialog: framesPanel.openFileDialog()
     }
 }

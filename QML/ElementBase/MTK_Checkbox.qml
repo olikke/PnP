@@ -1,7 +1,7 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.1
 
-import "."
+import "qrc:/QML"
 
 CheckBox {
     id: control

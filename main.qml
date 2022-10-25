@@ -6,6 +6,9 @@ import Qt.labs.folderlistmodel 1.0
 
 import "."
 import "qrc:/QML"
+import "qrc:/QML/ElementBase"
+import "qrc:/QML/Calibration"
+import "qrc:/QML/Camera"
 
 ApplicationWindow {
     id: window
@@ -13,7 +16,9 @@ ApplicationWindow {
     color: Style.currentTheme.background
     width: Screen.width
     height: Screen.height
+    visibility:  ApplicationWindow.FullScreen
     flags: Qt.FramelessWindowHint
+
 
     Component.onCompleted: {
         Style.setDarkMode(true)
@@ -70,7 +75,7 @@ ApplicationWindow {
             id: cameraPanel
         }
 
-        FramesPanel{
+        CalibrationPanel{
             id: framesPanel
         }
     }

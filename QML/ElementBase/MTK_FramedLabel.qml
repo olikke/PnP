@@ -2,6 +2,8 @@ import QtQuick 2.9
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.Material 2.3
 
+import "qrc:/QML"
+
 Rectangle {
     id: root
 

@@ -1,7 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Templates 2.2 as T
 
-import "."
+import "qrc:/QML"
 
 T.TabBar {
     id: control

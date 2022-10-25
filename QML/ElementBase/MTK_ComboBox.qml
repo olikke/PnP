@@ -2,6 +2,8 @@ import QtQuick 2.11
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.3
 
+import "qrc:/QML"
+
 Item {
     id: core
     property var customModel: ["1","2", "3"]

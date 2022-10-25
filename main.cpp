@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     QQmlContext *context = engine->rootContext();
 
     int width=1920;
-    int height=1080;
+    int height=1200;
 
     ImageProvider* provider = new ImageProvider(&app,QSize(width,height));
     context->setContextProperty("videoProvider",provider);

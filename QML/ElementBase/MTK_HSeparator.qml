@@ -1,8 +1,9 @@
 import QtQuick 2.0
 
+import "qrc:/QML"
+
 Rectangle {
     color: Style.currentTheme.background
-    opacity: 0.5
     height: Style.connectionWidth
     anchors.left: parent.left
     anchors.right: parent.right

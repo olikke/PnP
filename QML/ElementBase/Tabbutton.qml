@@ -1,6 +1,8 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 
+import "qrc:/QML"
+
 TabButton {
     id: control
     height: parent !== null ? parent.height : 0

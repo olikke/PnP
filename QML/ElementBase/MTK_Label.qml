@@ -1,5 +1,7 @@
 import QtQuick 2.9
 
+import "qrc:/QML"
+
 Text{
     id: root
 
