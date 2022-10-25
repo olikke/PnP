@@ -8,29 +8,27 @@
         <file>qmldir</file>
         <file>ASSETS/fonts/RobotoCondensed-Regular.otf</file>
         <file>QML/MTK_IconButton.qml</file>
-        <file>ASSETS/icon/delete.svg</file>
-        <file>ASSETS/icon/chess-horse-svgrepo-com.svg</file>
-        <file>ASSETS/icon/folder_open-black-48dp.svg</file>
-        <file>ASSETS/icon/add_box_FILL0_wght400_GRAD0_opsz48.svg</file>
-        <file>ASSETS/icon/arrow_circle_left_FILL0_wght400_GRAD0_opsz48.svg</file>
-        <file>ASSETS/icon/arrow_circle_right_FILL0_wght400_GRAD0_opsz48.svg</file>
-        <file>ASSETS/icon/calculate_FILL0_wght400_GRAD0_opsz48.svg</file>
-        <file>ASSETS/icon/delete_FILL0_wght400_GRAD0_opsz48.svg</file>
-        <file>ASSETS/icon/visibility_FILL0_wght400_GRAD0_opsz48.svg</file>
-        <file>ASSETS/icon/visibility_off_FILL0_wght400_GRAD0_opsz48.svg</file>
-        <file>ASSETS/icon/videocam_FILL0_wght400_GRAD0_opsz48.svg</file>
         <file>QML/MTK_VSeparator.qml</file>
         <file>QML/MTK_HSeparator.qml</file>
-        <file>ASSETS/icon/play_circle_FILL0_wght400_GRAD0_opsz48.svg</file>
         <file>QML/MTK_FramedLabel.qml</file>
         <file>QML/MTK_Switch.qml</file>
         <file>QML/MTK_SwitchButton_2.qml</file>
         <file>QML/MTK_ComboBox.qml</file>
-        <file>ASSETS/icon/pause_circle_FILL0_wght400_GRAD0_opsz48.svg</file>
-        <file>ASSETS/icon/add_circle_FILL0_wght400_GRAD0_opsz48.svg</file>
         <file>QML/TopBar.qml</file>
         <file>QML/ControlPanel.qml</file>
         <file>QML/FramesPanel.qml</file>
         <file>QML/MTK_Checkbox.qml</file>
+        <file>QML/CameraPanel.qml</file>
+        <file>ASSETS/icon/add.svg</file>
+        <file>ASSETS/icon/calculate.svg</file>
+        <file>ASSETS/icon/photo.svg</file>
+        <file>ASSETS/icon/play.svg</file>
+        <file>ASSETS/icon/close.svg</file>
+        <file>ASSETS/icon/delete.svg</file>
+        <file>QML/Tabbar.qml</file>
+        <file>QML/Tabbutton.qml</file>
+        <file>ASSETS/icon/chess-horse.svg</file>
+        <file>ASSETS/icon/folder.svg</file>
+        <file>ASSETS/icon/stop.svg</file>
     </qresource>
 </RCC>

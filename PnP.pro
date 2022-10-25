@@ -19,7 +19,9 @@ SOURCES += \
     calibration.cpp \
     grabopencv.cpp \
     imageprovider.cpp \
-    appconfigMini.cpp
+    appconfigMini.cpp \
+    calibrationmanager.cpp \
+    camfinder.cpp
 
 RESOURCES += qml.qrc
 
@@ -50,4 +52,6 @@ HEADERS += \
     calibration.h \
     grabopencv.h \
     imageprovider.h \
-    appconfigMini.h
+    appconfigMini.h \
+    calibrationmanager.h \
+    camfinder.h

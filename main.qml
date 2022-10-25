@@ -25,25 +25,53 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.top: parent.top
         onCloseApp: close()
+
+        Tabbar{
+            id: tapbar
+            height: parent.height/1.4
+            backgroundVisible: false
+
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.leftMargin: (parent.height - height)/2
+            anchors.left: parent.left
+
+            Tabbutton {
+                text: "Захват с камеры"
+            }
+
+            Tabbutton {
+                text: "Калибровка"
+            }
+
+            Tabbutton {
+                text: "Устранение искажений"
+            }
+
+            Tabbutton {
+                text: "Позиционирование"
+            }
+
+
+        }
     }
 
-    ControlPanel{
-        id: controlPanel
-        width: 400
+
+    SwipeView{
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.top: topBar.bottom
         anchors.topMargin: Style.connectionWidth
-        anchors.bottom: parent.bottom
-        onOpenFileDialog: framesPanel.openFileDialog()
-    }
+        clip: true
+        currentIndex: tapbar.currentIndex
+        interactive: false
 
-    FramesPanel{
-        id: framesPanel
-        anchors.left: parent.left
-        anchors.right: controlPanel.left
-        anchors.top: topBar.bottom
-        anchors.bottom: parent.bottom
-        anchors.margins: Style.connectionWidth
-    }
+        CameraPanel{
+            id: cameraPanel
+        }
 
+        FramesPanel{
+            id: framesPanel
+        }
+    }
 }

@@ -10,6 +10,8 @@
 #include "calibration.h"
 #include "imageprovider.h"
 #include "appconfigMini.h"
+#include "camfinder.h"
+#include "grabopencv.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,12 +28,26 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine * engine=new QQmlApplicationEngine(&app);
     QQmlContext *context = engine->rootContext();
 
-    ImageProvider* provider = new ImageProvider(&app);
+    int width=1920;
+    int height=1080;
+
+    ImageProvider* provider = new ImageProvider(&app,QSize(width,height));
     context->setContextProperty("videoProvider",provider);
     engine->addImageProvider("mlive",provider);
 
     AppConfigMini* appConfig=new AppConfigMini(&app);
     context->setContextProperty("appConfig",appConfig);
+
+    context->setContextProperty("frameWidth",width);
+    context->setContextProperty("frameHeight",height);
+
+    CamFinder* camFinder=new CamFinder(&app);
+    context->setContextProperty("camFinder",camFinder);
+
+    GrabOpenCV* grabber=new GrabOpenCV(&app,width,height);
+    context->setContextProperty("grabber",grabber);
+
+    QObject::connect(grabber,&GrabOpenCV::newFrame,provider,&ImageProvider::updateImage);
 
     engine->load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine->rootObjects().isEmpty())  return -1;

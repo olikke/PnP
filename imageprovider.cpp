@@ -2,7 +2,7 @@
 
 ImageProvider::ImageProvider(QObject *parent,QSize size) : QObject(parent),QQuickImageProvider(QQuickImageProvider::Image)
 {
-    image = QImage(size.width(),size.height(),QImage::Format_RGB32);
+    image = QImage(size.width(),size.height(),QImage::Format_Grayscale8);
     image.fill(QColor("#2d2d2d"));
 }
 
@@ -12,11 +12,9 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     return image;
 }
 
-void ImageProvider::updateImage(const QImage im)
+void ImageProvider::updateImage(const cv::Mat im)
 {
-    if (!image.isNull())
-    {
-        image=im;
-        emit imageChanged();
-    }
+    if (im.empty()) return;
+    image=QImage((uchar*) im.data, im.cols, im.rows, im.step, QImage::Format_Grayscale8);
+    emit imageChanged();
 }
