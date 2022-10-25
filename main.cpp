@@ -10,7 +10,6 @@
 #include "calibration.h"
 #include "imageprovider.h"
 #include "appconfigMini.h"
-#include "framemodel.h"
 
 int main(int argc, char *argv[])
 {
@@ -33,9 +32,6 @@ int main(int argc, char *argv[])
 
     AppConfigMini* appConfig=new AppConfigMini(&app);
     context->setContextProperty("appConfig",appConfig);
-
-    FrameModel* frameModel=new FrameModel(&app);
-    context->setContextProperty("frameModel",frameModel);
 
     engine->load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine->rootObjects().isEmpty())  return -1;

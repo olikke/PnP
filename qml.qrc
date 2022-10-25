@@ -31,5 +31,6 @@
         <file>QML/TopBar.qml</file>
         <file>QML/ControlPanel.qml</file>
         <file>QML/FramesPanel.qml</file>
+        <file>QML/MTK_Checkbox.qml</file>
     </qresource>
 </RCC>
