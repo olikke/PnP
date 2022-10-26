@@ -1,4 +1,5 @@
 QT += quick
+QT += gui
 CONFIG += c++11
 PKGCONFIG += opencv
 QT += widgets
@@ -21,7 +22,8 @@ SOURCES += \
     imageprovider.cpp \
     appconfigMini.cpp \
     calibrationmanager.cpp \
-    camfinder.cpp
+    camfinder.cpp \
+    foldermodelbackend.cpp
 
 RESOURCES += qml.qrc
 
@@ -54,4 +56,5 @@ HEADERS += \
     imageprovider.h \
     appconfigMini.h \
     calibrationmanager.h \
-    camfinder.h
+    camfinder.h \
+    foldermodelbackend.h

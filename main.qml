@@ -16,7 +16,6 @@ ApplicationWindow {
     color: Style.currentTheme.background
     width: Screen.width
     height: Screen.height
-    visibility:  ApplicationWindow.FullScreen
     flags: Qt.FramelessWindowHint
 
 
@@ -30,6 +29,7 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.top: parent.top
         onCloseApp: close()
+        onMinimizeApp: window.showMinimized()
 
         Tabbar{
             id: tapbar
@@ -55,8 +55,6 @@ ApplicationWindow {
             Tabbutton {
                 text: "Позиционирование"
             }
-
-
         }
     }
 

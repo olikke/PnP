@@ -85,6 +85,8 @@ Row{
                         iconOnly: true
                         width: 40
                         height: width
+                        enabled: grabber.play & grabber.folderReady
+                        onClicked: grabber.makePhoto()
                     }
 
                     MTK_RoundButton{
@@ -93,6 +95,7 @@ Row{
                         width: 40
                         height: width
                         onClicked: grabber.stopGrab()
+                        enabled: grabber.play
                     }
                 }
             }

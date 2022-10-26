@@ -1,7 +1,6 @@
 import QtQuick 2.0
 import Qt.labs.folderlistmodel 1.0
-import QtQuick.Dialogs 1.0
-import QtQuick.Layouts 1.0
+import QtQuick.Dialogs 1.3
 
 import "qrc:/QML/ElementBase"
 import "qrc:/QML"
@@ -10,17 +9,16 @@ Rectangle{
     id: root
     color: Style.currentTheme.primary
 
-    property string _lastfolder: openDialog.shortcuts.home
-
     FileDialog {
         id: openDialog
-        property bool left
-        title: "Сохранить в папку"
-        folder: _lastfolder
+        title: "Создайте папку"
+        folder: folderBack.url
         selectFolder: true
         onAccepted: {
-            onAccepted: folderModel.folder = fileUrl + "/"
-            _lastfolder=fileUrl
+            folderBack.url=fileUrl+"/"
+            folderModel.folder=folderBack.empty? folderBack.url : ""
+            lbl1.text=folderBack.empty? folderBack.url : "выберете пустую папку"
+            grabber.setUrl(folderModel.folder)
         }
     }
 
@@ -47,10 +45,11 @@ Rectangle{
             }
 
             MTK_Label{
+                id: lbl1
                 anchors.left: btn1.right
                 anchors.leftMargin: Style.panelsMargins*2
                 anchors.verticalCenter: parent.verticalCenter
-                text: "Сохранить изображения"
+                text: "Выбрать папку для сохранения"
             }
         }
 
@@ -107,6 +106,7 @@ Rectangle{
                             width: Style.btnHeight/2
                             height: Style.btnHeight/2
                             iconSize:Style.iconSize/2
+                            onClicked: folderBack.deleteOne(fileName)
                         }
                     }
                 }

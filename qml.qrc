@@ -31,5 +31,6 @@
         <file>QML/Calibration/CalibrationPanel.qml</file>
         <file>QML/Camera/CameraPanel.qml</file>
         <file>QML/Camera/CameraControl.qml</file>
+        <file>ASSETS/icon/minimize.svg</file>
     </qresource>
 </RCC>

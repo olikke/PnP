@@ -1,8 +1,4 @@
-#ifdef QT_WIDGETS_LIB
-#include <QtWidgets/QApplication>
-#else
-#include <QtGui/QGuiApplication>
-#endif
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QIcon>
@@ -12,24 +8,22 @@
 #include "appconfigMini.h"
 #include "camfinder.h"
 #include "grabopencv.h"
+#include "foldermodelbackend.h"
 
 int main(int argc, char *argv[])
 {
-#ifdef QT_WIDGETS_LIB
     QApplication app(argc, argv);
-#else
-    QGuiApplication app(argc, argv);
-#endif
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QCoreApplication::setApplicationName(QStringLiteral("Photosurface"));
-    QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
+//    QCoreApplication::setApplicationName(QStringLiteral("Photosurface"));
+//    QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
+//        QCoreApplication::setApplicationVersion(QLatin1String(QT_VERSION_STR));
 
     QQmlApplicationEngine * engine=new QQmlApplicationEngine(&app);
     QQmlContext *context = engine->rootContext();
 
     int width=1920;
-    int height=1200;
+    int height=1080;
 
     ImageProvider* provider = new ImageProvider(&app,QSize(width,height));
     context->setContextProperty("videoProvider",provider);
@@ -48,6 +42,9 @@ int main(int argc, char *argv[])
     context->setContextProperty("grabber",grabber);
 
     QObject::connect(grabber,&GrabOpenCV::newFrame,provider,&ImageProvider::updateImage);
+
+    FolderModelBackend* folderBack=new FolderModelBackend(&app);
+    context->setContextProperty("folderBack",folderBack);
 
     engine->load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine->rootObjects().isEmpty())  return -1;
