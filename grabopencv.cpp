@@ -37,12 +37,11 @@ void GrabOpenCV::setUrl(QString url)
 {
     m_path=QUrl(url).toLocalFile();
     emit folderReadyChanged();
-    m_count=0;
 }
 
 void GrabOpenCV::makePhoto()
 {
-    cv::imwrite(QString(m_path+QString::number(m_count++)+".bmp").toLatin1().constData(),frame);
+    cv::imwrite(QString(m_path+QTime::currentTime().toString("hhmmss.zzz")+".bmp").toLatin1().constData(),frame);
 }
 
 void GrabOpenCV::timeOut()

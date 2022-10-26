@@ -16,8 +16,8 @@ Rectangle{
         selectFolder: true
         onAccepted: {
             folderBack.url=fileUrl+"/"
-            folderModel.folder=folderBack.empty? folderBack.url : ""
-            lbl1.text=folderBack.empty? folderBack.url : "выберете пустую папку"
+            folderModel.folder= folderBack.url
+            lbl1.text=folderBack.url
             grabber.setUrl(folderModel.folder)
         }
     }
@@ -50,6 +50,10 @@ Rectangle{
                 anchors.leftMargin: Style.panelsMargins*2
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Выбрать папку для сохранения"
+                wrapMode: Text.Wrap
+                anchors.right: parent.right
+                anchors.rightMargin: Style.panelsMargins
+                horizontalAlignment: Text.AlignLeft
             }
         }
 
@@ -73,8 +77,9 @@ Rectangle{
             spacing: Style.connectionWidth*2
 
             Repeater{
-                model: FolderListModel{
+                model:     FolderListModel {
                     id: folderModel
+                    folder: ""
                     objectName: "folderModel"
                     showDirs: false
                     nameFilters: ["*.jpeg",".jpg","*.bmp","*.png"]

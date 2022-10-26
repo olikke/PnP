@@ -13,11 +13,11 @@ Row{
 
         Rectangle{
             id: rectangle
-            property real ws: parent.width/frameWidth
-            property real hs: parent.height/(frameHeight+buttons.height+combo.height)
+            property real ws: parent.width/appConfig.frameWidth
+            property real hs: parent.height/(appConfig.frameHeight+buttons.height+combo.height)
             property real mscale: ws<1 | hs<1 ?  ws<hs? ws: hs: 1
-            width: frameWidth*mscale
-            height: frameHeight*mscale+buttons.height+combo.height
+            width: appConfig.frameWidth*mscale
+            height: appConfig.frameHeight*mscale+buttons.height+combo.height
             anchors.centerIn: parent
             color: Style.currentTheme.background
 
@@ -47,7 +47,7 @@ Row{
 
             Image{
                 id: im
-                height: frameHeight*parent.mscale
+                height: appConfig.frameHeight*parent.mscale
                 fillMode: Image.PreserveAspectFit
                 antialiasing: true
                 anchors.top: combo.bottom

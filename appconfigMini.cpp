@@ -2,10 +2,16 @@
 
 AppConfigMini::AppConfigMini(QObject *parent, QString filename):
     QObject (parent),
-    filename(filename),
+    qsettings(QSettings::IniFormat, QSettings::UserScope, filename),
     m_darkTheme(true)
 {
-    if(!loadConfig()) writeConfig();
+   qsettings.setIniCodec(QTextCodec::codecForName("UTF-8"));
+   if(!loadConfig()) writeConfig();
+}
+
+AppConfigMini::~AppConfigMini()
+{
+    writeConfig();
 }
 
 bool AppConfigMini::darkTheme() const
@@ -17,32 +23,29 @@ void AppConfigMini::setDarkTheme(bool darkTheme)
 {
     m_darkTheme = darkTheme;
     emit darkThemeChanged(m_darkTheme);
-    writeConfig();
 }
 
 void AppConfigMini::setX(int xx)
 {
     x=xx;
-    emit xChanged(x);
-    writeConfig();
+    emit xChanged(x);    
 }
 
 void AppConfigMini::setY(int yy)
 {
     y=yy;
     emit yChanged(y);
-    writeConfig();
 }
 
 bool AppConfigMini::loadConfig()
 {
-    QSettings qsettings(QSettings::IniFormat, QSettings::UserScope, filename);
-    qsettings.setIniCodec(QTextCodec::codecForName("UTF-8"));
     if(QFile::exists(qsettings.fileName())){
         qsettings.beginGroup("General");
         m_darkTheme = qsettings.value("darktheme").toBool();
         x=qsettings.value("x",0).toInt();
         y=qsettings.value("y",0).toInt();
+        width=qsettings.value("frameWidth",1920).toInt();
+        height=qsettings.value("frameHeight",1080).toInt();
         qsettings.endGroup();
         return true;
     }
@@ -51,11 +54,11 @@ bool AppConfigMini::loadConfig()
 
 void AppConfigMini::writeConfig()
 {
-    QSettings qsettings(QSettings::IniFormat, QSettings::UserScope, filename);
-    qsettings.setIniCodec(QTextCodec::codecForName("UTF-8"));
     qsettings.beginGroup("General");
     qsettings.setValue("darktheme", m_darkTheme);
     qsettings.setValue("x",x);
     qsettings.setValue("y",y);
+    qsettings.setValue("frameWidth",width);
+    qsettings.setValue("frameHeight",height);
     qsettings.endGroup();
 }

@@ -8,6 +8,7 @@ Rectangle{
     color: Style.currentTheme.primary
 
     signal openFileDialog()
+    signal startCalibrate()
 
     Flickable {
         id: root
@@ -41,8 +42,12 @@ Rectangle{
                 MTK_Label{
                     anchors.left: btn1.right
                     anchors.leftMargin: Style.panelsMargins*2
+                    wrapMode: Text.Wrap
+                    anchors.right: parent.right
+                    anchors.rightMargin: Style.panelsMargins
+                    horizontalAlignment: Text.AlignLeft
                     anchors.verticalCenter: parent.verticalCenter
-                    text: "Выбрать изображения"
+                    text: folderModel.folder!=""? folderModel.folder :"Выбрать изображения"
                 }
             }
 
@@ -58,7 +63,7 @@ Rectangle{
                     anchors.leftMargin: Style.panelsMargins
                     anchors.verticalCenter: parent.verticalCenter
                     iconSource:"qrc:/ASSETS/icon/search.svg"
-                    onClicked: openFileDialog()
+                    onClicked: startCalibrate()
                     width: Style.btnHeight
                     height: Style.btnHeight
                     iconSize:Style.iconSize

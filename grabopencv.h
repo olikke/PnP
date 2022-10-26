@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QUrl>
 #include <QDebug>
+#include <QDateTime>
 #include <opencv2/opencv.hpp>
 
 class GrabOpenCV : public QObject
@@ -36,6 +37,5 @@ private:
     int m_width;
     int m_height;
     QString m_path="";
-    int m_count=0;
 };
 

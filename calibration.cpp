@@ -1,13 +1,20 @@
 #include "calibration.h"
 
-Calibration::Calibration(int boardWidth, int boardHeight, QObject *parent) : QObject(parent)
+Calibration::Calibration(QObject *parent,int boardWidth, int boardHeight) : QObject(parent)
 {
     m_boardSize=cv::Size(boardWidth,boardHeight);
     m_cornersCount=boardWidth*boardHeight;
 
 }
 
-void Calibration::updateFrame(cv::Mat frame)
+void Calibration::openFile(QString fileName)
+{
+    cv::Mat frame=cv::imread(fileName.toLatin1().constData());
+    updateFrame(frame);
+    cv::imwrite(fileName.toLatin1().constData(),frame);
+}
+
+void Calibration::updateFrame(cv::Mat &frame)
 {
     cv::Mat corners;
     //критерии поиска субпикселя кол-во итераций и точность
@@ -18,6 +25,7 @@ void Calibration::updateFrame(cv::Mat frame)
         //olikke cv::Size(11,11) зона поиска - изменение/производительность/точность
         // cv::Size(-1,-1) мёртвая зона
         cv::cornerSubPix(frame,corners,cv::Size(11,11),cv::Size(-1,-1),critaria);
+        cv::cvtColor(frame,frame,CV_GRAY2BGR);
         cv::drawChessboardCorners(frame,m_boardSize,corners,found);
     }
 }

@@ -11,16 +11,13 @@ Row {
 
     function openFileDialog() {openDialog.open()}
 
-    property string _lastfolder: openDialog.shortcuts.home
-
     FileDialog {
         id: openDialog
         title: "Открыть папку с файлами"
-        folder: _lastfolder
+        folder: folderBack.url
         selectFolder: true
         onAccepted: {
             onAccepted: folderModel.folder = fileUrl + "/"
-            _lastfolder=fileUrl
         }
     }
 
@@ -40,17 +37,23 @@ Row {
             spacing: 5
 
             Repeater{
-                model:FolderListModel {
+                id: repeater
+                model:    FolderListModel {
                     id: folderModel
+                    folder: ""
                     objectName: "folderModel"
                     showDirs: false
                     nameFilters: ["*.jpeg",".jpg","*.bmp","*.png"]
                 }
+
                 Rectangle{
                     id: photoFrame
                     width: (parent.width-grid.columns*grid.spacing)/grid.columns
-                    height: width*frameHeight/frameWidth+rec.height
+                    height: width*appConfig.frameHeight/appConfig.frameWidth+rec.height
                     color: "transparent"
+
+                    property string fn: fileName
+                    property bool ch: true
 
                     Image {
                         id: image
@@ -77,6 +80,7 @@ Row {
                                 width: 30
                                 uncheckedColor: Style.currentTheme.foreground
                                 checked: true
+                                onCheckStateChanged: ch=checked
                             }
                             MTK_Label{
                                 id: l1
@@ -102,5 +106,14 @@ Row {
         width: Style.sidePanel
         height: parent.height
         onOpenFileDialog: framesPanel.openFileDialog()
+        onStartCalibrate: {
+            var recomendationList=[]
+            var number=0
+            for (var i=0; i< repeater.count; i++) {
+                var element=repeater.itemAt(i);
+                if (element.ch) recomendationList[number++]=element.fn
+            }
+            calibrateFolder.start(folderModel.folder,recomendationList)
+        }
     }
 }

@@ -18,7 +18,6 @@ ApplicationWindow {
     height: Screen.height
     flags: Qt.FramelessWindowHint
 
-
     Component.onCompleted: {
         Style.setDarkMode(true)
     }
