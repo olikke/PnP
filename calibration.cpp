@@ -14,6 +14,11 @@ void Calibration::openFile(QString fileName)
     cv::imwrite(fileName.toLatin1().constData(),frame);
 }
 
+//result=cv::calibrateCamera(
+//objectPoints для всех одинаков like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+//imagePoints== corners
+//result - ско повторного проецирования, пиксель
+
 void Calibration::updateFrame(cv::Mat &frame)
 {
     cv::Mat corners;

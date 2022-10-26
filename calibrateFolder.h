@@ -7,7 +7,16 @@
 #include <QUrl>
 #include <QFile>
 #include <calibration.h>
+#include <QtConcurrent/QtConcurrent>
+#include <opencv2/opencv.hpp>
 #include "global.h"
+
+struct Task {
+    QString fileName;
+    cv::Size boardSize;
+    cv::Mat imagePoint;
+    bool success;
+};
 
 class CalibrateFolder : public QObject
 {
@@ -17,7 +26,7 @@ public:
     ~CalibrateFolder();
 
     Q_INVOKABLE void start(QString url, QStringList fileName);
-
+    Q_INVOKABLE void startParallel(QString url, QStringList fileName);
 signals:
 
 public slots:
