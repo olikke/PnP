@@ -32,5 +32,8 @@
         <file>QML/Camera/CameraPanel.qml</file>
         <file>QML/Camera/CameraControl.qml</file>
         <file>ASSETS/icon/minimize.svg</file>
+        <file>QML/ElementBase/MTK_Slider.qml</file>
+        <file>QML/CardBase/ButtonCard.qml</file>
+        <file>QML/CardBase/SliderCard.qml</file>
     </qresource>
 </RCC>

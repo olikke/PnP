@@ -3,13 +3,12 @@
 #include <QQmlContext>
 #include <QIcon>
 
-#include "calibration.h"
 #include "imageprovider.h"
 #include "appconfigMini.h"
 #include "camfinder.h"
 #include "grabopencv.h"
 #include "folderBackend.h"
-#include "calibrateFolder.h"
+#include "calibrate.h"
 
 int main(int argc, char *argv[])
 {
@@ -38,8 +37,8 @@ int main(int argc, char *argv[])
     FolderBackend* folderBack=new FolderBackend(&app);
     context->setContextProperty("folderBack",folderBack);
 
-    CalibrateFolder* calibrateFolder=new CalibrateFolder(&app);
-    context->setContextProperty("calibrateFolder",calibrateFolder);
+    Calibrate* calibrate=new Calibrate(&app);
+    context->setContextProperty("calibrate",calibrate);
 
     engine->load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine->rootObjects().isEmpty())  return -1;

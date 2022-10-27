@@ -3,6 +3,7 @@ import Qt.labs.folderlistmodel 1.0
 import QtQuick.Dialogs 1.3
 
 import "qrc:/QML/ElementBase"
+import "qrc:/QML/CardBase"
 import "qrc:/QML"
 
 Rectangle{
@@ -28,33 +29,10 @@ Rectangle{
         height: implicitHeight
         spacing: Style.connectionWidth
 
-        Item{
-            width: parent.width
-            height: Style.cardHeight
-
-            MTK_RoundButton{
-                id: btn1
-                anchors.left: parent.left
-                anchors.leftMargin: Style.panelsMargins
-                anchors.verticalCenter: parent.verticalCenter
-                iconSource:"qrc:/ASSETS/icon/folder.svg"
-                onClicked: openDialog.open()
-                width: Style.btnHeight
-                height: Style.btnHeight
-                iconSize:Style.iconSize
-            }
-
-            MTK_Label{
-                id: lbl1
-                anchors.left: btn1.right
-                anchors.leftMargin: Style.panelsMargins*2
-                anchors.verticalCenter: parent.verticalCenter
-                text: "Выбрать папку для сохранения"
-                wrapMode: Text.Wrap
-                anchors.right: parent.right
-                anchors.rightMargin: Style.panelsMargins
-                horizontalAlignment: Text.AlignLeft
-            }
+        ButtonCard{
+            iconSource:"qrc:/ASSETS/icon/folder.svg"
+            labelText: "Выбрать папку для сохранения"
+            onClicked: openDialog.open()
         }
 
         MTK_HSeparator{}

@@ -113,7 +113,7 @@ Row {
                 var element=repeater.itemAt(i);
                 if (element.ch) recomendationList[number++]=element.fn
             }
-            calibrateFolder.start(folderModel.folder,recomendationList)
+            calibrate.start(folderModel.folder,recomendationList)
         }
     }
 }

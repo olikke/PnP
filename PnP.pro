@@ -3,6 +3,7 @@ QT += gui
 CONFIG += c++11
 PKGCONFIG += opencv
 QT += widgets
+QT += concurrent
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -16,14 +17,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp \
-    calibration.cpp \
+    main.cpp \
     grabopencv.cpp \
     imageprovider.cpp \
     appconfigMini.cpp \
     camfinder.cpp \
     folderBackend.cpp \
-    calibrateFolder.cpp
+    calibrate.cpp
 
 RESOURCES += qml.qrc
 
@@ -51,11 +51,10 @@ unix|win32: LIBS += -lopencv_features2d
 unix|win32: LIBS += -lopencv_calib3d
 
 HEADERS += \
-    calibration.h \
     grabopencv.h \
     imageprovider.h \
     appconfigMini.h \
     camfinder.h \
     folderBackend.h \
-    calibrateFolder.h \
-    global.h
+    global.h \
+    calibrate.h

@@ -2,6 +2,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.4
 
 import "qrc:/QML/ElementBase"
+import "qrc:/QML/CardBase"
 import "qrc:/QML"
 
 Rectangle{
@@ -23,58 +24,57 @@ Rectangle{
             anchors.top: parent.top
             spacing: Style.connectionWidth
 
-            Item{
-                width: parent.width
-                height: Style.cardHeight
-
-                MTK_RoundButton{
-                    id: btn1
-                    anchors.left: parent.left
-                    anchors.leftMargin: Style.panelsMargins
-                    anchors.verticalCenter: parent.verticalCenter
-                    iconSource:"qrc:/ASSETS/icon/folder.svg"
-                    onClicked: openFileDialog()
-                    width: Style.btnHeight
-                    height: Style.btnHeight
-                    iconSize:Style.iconSize
-                }
-
-                MTK_Label{
-                    anchors.left: btn1.right
-                    anchors.leftMargin: Style.panelsMargins*2
-                    wrapMode: Text.Wrap
-                    anchors.right: parent.right
-                    anchors.rightMargin: Style.panelsMargins
-                    horizontalAlignment: Text.AlignLeft
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: folderModel.folder!=""? folderModel.folder :"Выбрать изображения"
-                }
+            ButtonCard{
+                iconSource:"qrc:/ASSETS/icon/folder.svg"
+                labelText:  folderModel.folder!=""? folderModel.folder :"Выбрать изображения"
+                onClicked: openFileDialog()
             }
 
             MTK_HSeparator{}
 
             Item{
-                width: parent.width
-                height: Style.cardHeight
-
-                MTK_RoundButton{
-                    id: btn2
-                    anchors.left: parent.left
-                    anchors.leftMargin: Style.panelsMargins
-                    anchors.verticalCenter: parent.verticalCenter
-                    iconSource:"qrc:/ASSETS/icon/search.svg"
-                    onClicked: startCalibrate()
-                    width: Style.btnHeight
-                    height: Style.btnHeight
-                    iconSize:Style.iconSize
-                }
-
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: Style.panelsMargins
+                height: Style.cardHeight/2
                 MTK_Label{
-                    anchors.left: btn2.right
-                    anchors.leftMargin: Style.panelsMargins*2
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "Поиск и отображение углов"
+                    id: l1
+                    text: "Поиск углов"
+                    anchors.left: parent.left
+                    horizontalAlignment: Text.AlignLeft
+                    color: Style.currentTheme.accent
                 }
+                MTK_Label{
+                    text: "время выполнения "+calibrate.timeFindCorners.toFixed(3)+" с"
+                    opacity: 0.4
+                    anchors.right: parent.right
+                    horizontalAlignment: Text.AlignRight
+                }
+            }
+
+            ButtonCard{
+                iconSource:"qrc:/ASSETS/icon/play.svg"
+                labelText:  "Начать поиск"
+                onClicked: startCalibrate()
+            }
+
+            SliderCard{
+                labelText: "Количество итерраций"
+                from: 10
+                to: 50
+                value: calibrate.iterations
+                stepSize: 1
+                onMove: calibrate.iterations=value
+            }
+
+            SliderCard{
+                labelText: "Точность приближения"
+                from: 1
+                to: 50
+                value: calibrate.epsilon
+                stepSize: 1
+                onMove: calibrate.epsilon=value
+                divider: calibrate.epsilonDivider
             }
 
             MTK_HSeparator{}
