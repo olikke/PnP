@@ -31,12 +31,24 @@ public:
     Q_PROPERTY(int frameHeight READ frameHeight NOTIFY heightChanged)
     int frameHeight() const {return height;}
 
+    Q_PROPERTY(int borderWidth READ borderWidth NOTIFY borderWidthChanged)
+    int borderWidth() const {return bWidth;}
+
+    Q_PROPERTY(int borderHeight READ borderHeight NOTIFY borderHeightChanged)
+    int borderHeight() const {return bHeight;}
+
+    Q_PROPERTY(int squareSizeMM READ squareSizeMM NOTIFY squareSizeMMChanged)
+    int squareSizeMM() const {return sSizeMM;}
+
 signals:
     void darkThemeChanged(bool val);
     void xChanged(int val);
     void yChanged(int val);
     void widthChanged(int val);
     void heightChanged(int val);
+    void borderWidthChanged(int val);
+    void borderHeightChanged(int val);
+    void squareSizeMMChanged(float value);
 private:
     QSettings qsettings;
     bool m_darkTheme;
@@ -44,6 +56,9 @@ private:
     int y=0;
     int width=1920;
     int height=1080;
+    int bWidth=7;
+    int bHeight=5;
+    int sSizeMM=20;
 private:
     bool loadConfig();
     void writeConfig();

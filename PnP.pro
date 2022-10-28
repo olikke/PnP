@@ -23,7 +23,8 @@ SOURCES += \
     appconfigMini.cpp \
     camfinder.cpp \
     folderBackend.cpp \
-    calibrate.cpp
+    calibrate.cpp \
+    matdisplaymodel.cpp
 
 RESOURCES += qml.qrc
 
@@ -57,4 +58,5 @@ HEADERS += \
     camfinder.h \
     folderBackend.h \
     global.h \
-    calibrate.h
+    calibrate.h \
+    matdisplaymodel.h

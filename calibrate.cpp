@@ -2,13 +2,17 @@
 
 Calibrate::Calibrate(QObject *parent, int boardWidth, int boardHeight, float squareSize) :
     QObject(parent),
-    tempDir(QCoreApplication::applicationDirPath()+"/.temporary/")
+    cameraMatrix(cv::Mat(3,3,CV_32FC1)),
+    cameraModel(new MatModel(this)),
+    tempDir(QCoreApplication::applicationDirPath()+"/.temporary/"),
+    m_squareSize(squareSize)
 {
+
+    cameraModel->newMat(&cameraMatrix);
+
     m_boardSize=cv::Size(boardWidth,boardHeight);
     if (!reloadDir()) qDebug()<<"Не удалось создать папку для временных файлов";
-    for (int i=0; i<boardWidth; i++)  //какой порядок,
-        for (int j=0; j<boardHeight; j++)
-            objPointsConst.push_back(cv::Point3f(i*squareSize,j*squareSize,0));
+     const cv::Point3f kCenterOffset((float)(m_boardSize.width - 1) * squareSize, (float)(m_boardSize.height - 1) * squareSize, 0.f);
 }
 
 Calibrate::~Calibrate()
@@ -21,7 +25,7 @@ Task calc(const Task &task)
     Task newTask=task;
     cv::Mat frame=cv::imread(newTask.fileName.toLatin1().constData());
     cv::Size s=frame.size();
-    const cv::TermCriteria criteria=cv::TermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,task.app->getIterations(),task.app->getEpsilon());
+    const cv::TermCriteria criteria=cv::TermCriteria(cv::TermCriteria::EPS+ cv::TermCriteria::COUNT,30, 0.1/*task.app->getIterations(),task.app->getEpsilon()*/);
     cv::cvtColor(frame,frame,CV_BGR2GRAY);
     newTask.success=cv::findChessboardCorners(frame,task.app->boardSize(),newTask.corners);
     if (newTask.success) {
@@ -30,6 +34,9 @@ Task calc(const Task &task)
         cv::cornerSubPix(frame,newTask.corners,cv::Size(11,11),cv::Size(-1,-1),criteria);
         cv::cvtColor(frame,frame,CV_GRAY2BGR);
         cv::drawChessboardCorners(frame,task.app->boardSize(),newTask.corners,newTask.success);
+        for (int i=0; i<task.app->boardSize().height; i++)
+            for (int j=0; j<task.app->boardSize().width;j++)
+                newTask.object.push_back(cv::Point3f(j*task.squareSize,i*task.squareSize,0));
     }
     cv::imwrite(newTask.fileName.toLatin1().constData(),frame);
     return newTask;
@@ -38,8 +45,8 @@ Task calc(const Task &task)
 void Calibrate::start(QString url, QStringList fileName)
 {
     if (!reloadDir()) {
-        m_timeFindCorners=0;
-        emit timeFindCornersChanged();
+        m_workingTime=0;
+        emit workingTimeChanged();
     }
     std::chrono::high_resolution_clock::time_point time;
     getTime(time);
@@ -52,26 +59,35 @@ void Calibrate::start(QString url, QStringList fileName)
         Task task;
         task.app=this;
         task.fileName=tempDir+fn;
-        blank.push_back(task);
+        task.squareSize=m_squareSize;
+        blank.push_back(task);        
     }
     QList<Task> result=QtConcurrent::blockingMapped(blank,calc);
+    m_succesFrame=0;
     //посчитай и выведи кол-во верных кадров
     for (Task task:result) {
         if (!task.success) continue;
-        objPoints.push_back(objPointsConst);
+        m_succesFrame++;
+        objPoints.push_back(task.object);
         imgPoints.push_back(task.corners);
     }
-    cv::Mat cameraMatrix=cv::Mat(3,3,CV_32FC1);
-    cv::Mat distCoeffs;//=cv::Mat(5,1,CV_32FC1);
+    emit successFrameChanged();
+    cv::Mat distCoeffs;
     //https://stackoverflow-com.translate.goog/questions/53277597/fundamental-understanding-of-tvecs-rvecs-in-opencv-aruco?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
-    cv::_OutputArray rvecs;
-    cv::_OutputArray tvecs;
-    qDebug()<<cv::calibrateCamera(objPoints,imgPoints,cv::Size(1920,1200),cameraMatrix,distCoeffs,rvecs,tvecs,0,cv::TermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,m_iterations,m_epsilon));
+    cv::_OutputArray rotation;
+    cv::_OutputArray translation;
+    int flags = 0;//cv::CALIB_USE_INTRINSIC_GUESS | cv::CALIB_FIX_PRINCIPAL_POINT | cv::CALIB_RATIONAL_MODEL;
+    m_errorRMS=cv::calibrateCamera(objPoints,imgPoints,cv::Size(1920,1200),cameraMatrix,distCoeffs,rotation,translation,flags,cv::TermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,m_iterations,m_epsilon));
+
+    emit errorRMSChanged();
+    qDebug()<<"";
     qDebug()<<toString(cameraMatrix);
     qDebug()<<"";
-    qDebug()<<toString(distCoeffs);
-    m_timeFindCorners=getMilliSecSince(time);
-    emit timeFindCornersChanged();
+        cameraModel->updateMat(/*cameraMatrix*/);
+//    qDebug()<<"";
+//    qDebug()<<toString(distCoeffs);
+    m_workingTime=getMilliSecSince(time);
+    emit workingTimeChanged();
 }
 
 void Calibrate::removeDir()

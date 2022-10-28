@@ -32,29 +32,17 @@ Rectangle{
 
             MTK_HSeparator{}
 
-            Item{
+            MTK_Label{
+                text: "Калибровка"
                 anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.margins: Style.panelsMargins
-                height: Style.cardHeight/2
-                MTK_Label{
-                    id: l1
-                    text: "Поиск углов"
-                    anchors.left: parent.left
-                    horizontalAlignment: Text.AlignLeft
-                    color: Style.currentTheme.accent
-                }
-                MTK_Label{
-                    text: "время выполнения "+calibrate.timeFindCorners.toFixed(3)+" с"
-                    opacity: 0.4
-                    anchors.right: parent.right
-                    horizontalAlignment: Text.AlignRight
-                }
+                anchors.leftMargin: Style.panelsMargins*2
+                horizontalAlignment: Text.AlignLeft
+                color: Style.currentTheme.accent
             }
 
             ButtonCard{
                 iconSource:"qrc:/ASSETS/icon/play.svg"
-                labelText:  "Начать поиск"
+                labelText:  "Начать калибровку"
                 onClicked: startCalibrate()
             }
 
@@ -75,7 +63,150 @@ Rectangle{
                 stepSize: 1
                 onMove: calibrate.epsilon=value
                 divider: calibrate.epsilonDivider
+            }            
+
+            MTK_HSeparator{}
+
+            MTK_Label{
+                text: "Результаты"
+                anchors.left: parent.left
+                anchors.leftMargin: Style.panelsMargins*2
+                horizontalAlignment: Text.AlignLeft
+                color: Style.currentTheme.accent
             }
+
+            InfoCard{
+                infoText: calibrate.workingTime
+                labelText: "время работы,сек"
+            }
+
+            InfoCard{
+                infoText: calibrate.successFrame
+                labelText: "успешно обработано кадров"
+            }
+
+            InfoCard{
+                infoText: calibrate.errorRMS.toFixed(3)
+                labelText: "СКО повторного проецирования"
+            }
+
+            MTK_Label{
+                text: "Матрица внутренних параметров камеры"
+                anchors.left: parent.left
+                anchors.leftMargin: Style.panelsMargins*2
+                horizontalAlignment: Text.AlignLeft
+            }
+
+            MatTableCard{
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: Style.panelsMargins
+                model: calibrate.getCameraMatrix()
+            }
+
+            Row{
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: Style.panelsMargins
+                height: Style.btnHeight*0.8
+                spacing: Style.connectionWidth
+                MTK_FramedLabel{
+                    text: calibrate.timeFindCorners
+                    width: parent.width/3-parent.spacing*2/3
+                    height: parent.height
+                    border.color: Style.currentTheme.background
+                    radius: Style.unitRadius
+                    color: border.color
+                }
+                MTK_FramedLabel{
+                    text: calibrate.timeFindCorners
+                    width: parent.width/3-parent.spacing*2/3
+                    height: parent.height
+                    border.color: Style.currentTheme.background
+                    radius: Style.unitRadius
+                    color: border.color
+                }
+                MTK_FramedLabel{
+                    text: calibrate.timeFindCorners
+                    width: parent.width/3-parent.spacing*2/3
+                    height: parent.height
+                    border.color: Style.currentTheme.background
+                   radius: Style.unitRadius
+                   color: border.color
+                }
+            }
+
+            Row{
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: Style.panelsMargins
+                height: Style.btnHeight*0.8
+                spacing: Style.connectionWidth
+                MTK_FramedLabel{
+                    text: calibrate.timeFindCorners
+                    width: parent.width/3-parent.spacing*2/3
+                    height: parent.height
+                    border.color: Style.currentTheme.background
+                    radius: Style.unitRadius
+                    color: border.color
+                }
+                MTK_FramedLabel{
+                    text: calibrate.timeFindCorners
+                    width: parent.width/3-parent.spacing*2/3
+                    height: parent.height
+                    border.color: Style.currentTheme.background
+                    radius: Style.unitRadius
+                    color: border.color
+                }
+                MTK_FramedLabel{
+                    text: calibrate.timeFindCorners
+                    width: parent.width/3-parent.spacing*2/3
+                    height: parent.height
+                    border.color: Style.currentTheme.background
+                   radius: Style.unitRadius
+                   color: border.color
+                }
+            }
+
+            Row{
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: Style.panelsMargins
+                height: Style.btnHeight*0.8
+                spacing: Style.connectionWidth
+                MTK_FramedLabel{
+                    text: calibrate.timeFindCorners
+                    width: parent.width/3-parent.spacing*2/3
+                    height: parent.height
+                    border.color: Style.currentTheme.background
+                    radius: Style.unitRadius
+                    color: border.color
+                }
+                MTK_FramedLabel{
+                    text: calibrate.timeFindCorners
+                    width: parent.width/3-parent.spacing*2/3
+                    height: parent.height
+                    border.color: Style.currentTheme.background
+                    radius: Style.unitRadius
+                    color: border.color
+                }
+                MTK_FramedLabel{
+                    text: calibrate.timeFindCorners
+                    width: parent.width/3-parent.spacing*2/3
+                    height: parent.height
+                    border.color: Style.currentTheme.background
+                    radius: Style.unitRadius
+                    color: border.color
+                }
+            }
+
+            MTK_Label{
+                text: "Матрица коэффициентов искажений"
+                anchors.left: parent.left
+                anchors.leftMargin: Style.panelsMargins*2
+                horizontalAlignment: Text.AlignLeft
+            }
+
 
             MTK_HSeparator{}
         }

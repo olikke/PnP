@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     FolderBackend* folderBack=new FolderBackend(&app);
     context->setContextProperty("folderBack",folderBack);
 
-    Calibrate* calibrate=new Calibrate(&app);
+    Calibrate* calibrate=new Calibrate(&app,appConfig->borderWidth(),appConfig->borderHeight(),appConfig->squareSizeMM());
     context->setContextProperty("calibrate",calibrate);
 
     engine->load(QUrl(QStringLiteral("qrc:/main.qml")));

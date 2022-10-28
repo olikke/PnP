@@ -35,5 +35,7 @@
         <file>QML/ElementBase/MTK_Slider.qml</file>
         <file>QML/CardBase/ButtonCard.qml</file>
         <file>QML/CardBase/SliderCard.qml</file>
+        <file>QML/CardBase/InfoCard.qml</file>
+        <file>QML/CardBase/MatTableCard.qml</file>
     </qresource>
 </RCC>
