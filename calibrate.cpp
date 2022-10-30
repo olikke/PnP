@@ -1,18 +1,16 @@
 ﻿#include "calibrate.h"
 
-Calibrate::Calibrate(QObject *parent, int boardWidth, int boardHeight, float squareSize) :
+Calibrate::Calibrate(QObject *parent,AppConfigMini* appConfig) :
     QObject(parent),
+    m_appConfig(appConfig),
     cameraMatrix(cv::Mat(3,3,CV_32FC1)),
-    cameraModel(new MatModel(this)),
-    tempDir(QCoreApplication::applicationDirPath()+"/.temporary/"),
-    m_squareSize(squareSize)
+    cameraModel(new MatModel(/*&cameraMatrix,*/this)),
+    tempDir(QCoreApplication::applicationDirPath()+"/.temporary/")
 {
-
     cameraModel->newMat(&cameraMatrix);
-
-    m_boardSize=cv::Size(boardWidth,boardHeight);
+  //  m_boardSize=cv::Size(boardWidth,boardHeight);
     if (!reloadDir()) qDebug()<<"Не удалось создать папку для временных файлов";
-     const cv::Point3f kCenterOffset((float)(m_boardSize.width - 1) * squareSize, (float)(m_boardSize.height - 1) * squareSize, 0.f);
+   //  const cv::Point3f kCenterOffset((float)(m_boardSize.width - 1) * squareSize, (float)(m_boardSize.height - 1) * squareSize, 0.f);
 }
 
 Calibrate::~Calibrate()

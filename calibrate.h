@@ -9,7 +9,8 @@
 #include <QtConcurrent/QtConcurrent>
 #include <opencv2/opencv.hpp>
 #include "global.h"
-#include "matdisplaymodel.h"
+#include "matModel.h"
+#include "appconfigMini.h"
 
 class Calibrate;
 
@@ -28,7 +29,7 @@ class Calibrate : public QObject
 public:
     // есть разночтения - учитывать ли squareSize (т.е. размер квадрата доски) ИМЕННО КВАДРАТА! ровного
    // boardWidth и boardHeight кол-во углов доски
-    Calibrate(QObject *parent = nullptr, int boardWidth=9, int boardHeight=7, float squareSize=0.02);
+    Calibrate(QObject *parent = nullptr,AppConfigMini* appConfig=nullptr);
     ~Calibrate();
 
     //кол-во итераций поиска субпикселей углов
@@ -69,6 +70,7 @@ public slots:
 protected:
 
 private:
+    AppConfigMini* m_appConfig;
     cv::Mat cameraMatrix;
     MatModel* cameraModel;
     QString tempDir;

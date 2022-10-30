@@ -13,52 +13,57 @@ public:
     AppConfigMini(QObject *parent = nullptr,QString filename = "config-PnP");
     ~AppConfigMini();
 
-    Q_PROPERTY(bool darkTheme READ darkTheme WRITE setDarkTheme NOTIFY darkThemeChanged)
-    bool darkTheme() const;
-    void setDarkTheme(bool darkTheme);
+    Q_PROPERTY(bool getDarkTheme READ getDarkTheme WRITE setDarkTheme NOTIFY darkThemeChanged)
+    bool getDarkTheme() {return m_darkTheme;}
+    void setDarkTheme(bool val) {m_darkTheme = val;}
 
     Q_PROPERTY(int x READ getX WRITE setX NOTIFY xChanged)
-    int getX() const {return x;}
-    void setX(int xx);
+    int getX() {return x;}
+    void setX(int val){x=val;}
 
     Q_PROPERTY(int y READ getY WRITE setY NOTIFY yChanged)
-    int getY() const {return y;}
-    void setY(int yy);
+    int getY() {return y;}
+    void setY(int val){y=val;}
 
-    Q_PROPERTY(int frameWidth READ frameWidth NOTIFY widthChanged)
-    int frameWidth() const {return width;}
+    Q_PROPERTY(int frameWidth READ getFrameWidth WRITE setFrameWidth NOTIFY frameWidthChanged)
+    int getFrameWidth() {return m_frameWidth;}
+    void setFrameWidth(int val) {m_frameWidth=val;}
 
-    Q_PROPERTY(int frameHeight READ frameHeight NOTIFY heightChanged)
-    int frameHeight() const {return height;}
+    Q_PROPERTY(int frameHeight READ getFrameHeight WRITE setFrameHeight NOTIFY frameHeightChanged)
+    int getFrameHeight() {return m_frameHeight;}
+    void setFrameHeight(int val) {m_frameHeight=val;}
 
-    Q_PROPERTY(int borderWidth READ borderWidth NOTIFY borderWidthChanged)
-    int borderWidth() const {return bWidth;}
+    Q_PROPERTY(int borderWidth READ getBorderWidth WRITE setBorderWidth NOTIFY borderWidthChanged)
+    int getBorderWidth() {return m_borderWidth;}
+    void setBorderWidth(int val) {m_borderWidth=val;}
 
-    Q_PROPERTY(int borderHeight READ borderHeight NOTIFY borderHeightChanged)
-    int borderHeight() const {return bHeight;}
+    Q_PROPERTY(int borderHeight READ getBoderHeight WRITE setBorderHeight NOTIFY borderHeightChanged)
+    int getBoderHeight() {return m_borderHeight;}
+    void setBorderHeight(int val) {m_borderHeight=val;}
 
-    Q_PROPERTY(int squareSizeMM READ squareSizeMM NOTIFY squareSizeMMChanged)
-    int squareSizeMM() const {return sSizeMM;}
+    Q_PROPERTY(int squareSize READ getSquareSize WRITE setSquareSize NOTIFY squareSizeChanged)
+    int getSquareSize() {return m_squareSize;}
+    void setSquareSize(int val) {m_squareSize=val;}
 
 signals:
     void darkThemeChanged(bool val);
     void xChanged(int val);
     void yChanged(int val);
-    void widthChanged(int val);
-    void heightChanged(int val);
+    void frameWidthChanged(int val);
+    void frameHeightChanged(int val);
     void borderWidthChanged(int val);
     void borderHeightChanged(int val);
-    void squareSizeMMChanged(float value);
+    void squareSizeChanged(float value);
 private:
     QSettings qsettings;
     bool m_darkTheme;
     int x=0;
     int y=0;
-    int width=1920;
-    int height=1080;
-    int bWidth=7;
-    int bHeight=5;
-    int sSizeMM=20;
+    int m_frameWidth=1920;
+    int m_frameHeight=1080;
+    int m_borderWidth=7;
+    int m_borderHeight=5;
+    int m_squareSize=20;
 private:
     bool loadConfig();
     void writeConfig();

@@ -10,11 +10,9 @@ Item{
     GridView{
         id: root
         width: parent.width
-        height: cellHeight*model.rowCount()
+        height: cellHeight*model.rowCount()/model.columnCount()
         cellWidth:width/model.columnCount()
         cellHeight:Style.btnHeight*0.8
-        Component.onCompleted: console.log(root.count)
-
 
         delegate:Rectangle {
             width:root.cellWidth-Style.connectionWidth

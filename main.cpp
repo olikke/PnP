@@ -16,20 +16,20 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    QQmlApplicationEngine * engine=new QQmlApplicationEngine(&app);
-    QQmlContext *context = engine->rootContext();
+    QQmlApplicationEngine engine;
+    QQmlContext *context = engine.rootContext();
 
     AppConfigMini* appConfig=new AppConfigMini(&app);
     context->setContextProperty("appConfig",appConfig);
 
-    ImageProvider* provider = new ImageProvider(&app,QSize(appConfig->frameWidth(),appConfig->frameHeight()));
+    ImageProvider* provider = new ImageProvider(&app,QSize(appConfig->getFrameWidth(),appConfig->getFrameHeight()));
     context->setContextProperty("videoProvider",provider);
-    engine->addImageProvider("mlive",provider);
+    engine.addImageProvider("mlive",provider);
 
     CamFinder* camFinder=new CamFinder(&app);
     context->setContextProperty("camFinder",camFinder);
 
-    GrabOpenCV* grabber=new GrabOpenCV(&app,appConfig->frameWidth(),appConfig->frameHeight());
+    GrabOpenCV* grabber=new GrabOpenCV(&app,appConfig->getFrameWidth(),appConfig->getFrameHeight());
     context->setContextProperty("grabber",grabber);
 
     QObject::connect(grabber,&GrabOpenCV::newFrame,provider,&ImageProvider::updateImage);
@@ -37,11 +37,11 @@ int main(int argc, char *argv[])
     FolderBackend* folderBack=new FolderBackend(&app);
     context->setContextProperty("folderBack",folderBack);
 
-    Calibrate* calibrate=new Calibrate(&app,appConfig->borderWidth(),appConfig->borderHeight(),appConfig->squareSizeMM());
+    Calibrate* calibrate=new Calibrate(&app,appConfig);
     context->setContextProperty("calibrate",calibrate);
 
-    engine->load(QUrl(QStringLiteral("qrc:/main.qml")));
-    if (engine->rootObjects().isEmpty())  return -1;
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    if (engine.rootObjects().isEmpty())  return -1;
 
     return app.exec();
 }

@@ -33,6 +33,61 @@ Rectangle{
             MTK_HSeparator{}
 
             MTK_Label{
+                text: "Настройки"
+                anchors.left: parent.left
+                anchors.leftMargin: Style.panelsMargins*2
+                horizontalAlignment: Text.AlignLeft
+                color: Style.currentTheme.accent
+            }
+
+            SliderCard{
+                labelText: "Ширина кадра, пикс"
+                from: 720
+                to: 2048
+                value: appConfig.frameWidth
+                stepSize: 4
+                onMove: appConfig.frameWidth=value
+            }
+
+            SliderCard{
+                labelText: "Высота кадра, пикс"
+                from: 576
+                to: 2048
+                value: appConfig.frameHeight
+                stepSize: 4
+                onMove: appConfig.frameHeight=value
+            }
+
+            SliderCard{
+                labelText: "Ширина доски, шт"
+                from: 1
+                to: 13
+                value: appConfig.borderWidth
+                stepSize: 1
+                onMove: appConfig.borderWidth=value
+            }
+
+            SliderCard{
+                labelText: "Высота доски, шт"
+                from: 1
+                to: 13
+                value: appConfig.borderHeight
+                stepSize: 1
+                onMove: appConfig.borderHeight=value
+            }
+
+            SliderCard{
+                labelText: "Сторона квадрата, мм"
+                from: 1
+                to: 50
+                value: appConfig.squareSize
+                stepSize: 1
+                onMove: appConfig.squareSize=value
+            }
+
+            MTK_HSeparator{}
+
+            MTK_Label{
                 text: "Калибровка"
                 anchors.left: parent.left
                 anchors.leftMargin: Style.panelsMargins*2
@@ -102,102 +157,6 @@ Rectangle{
                 anchors.right: parent.right
                 anchors.margins: Style.panelsMargins
                 model: calibrate.getCameraMatrix()
-            }
-
-            Row{
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.margins: Style.panelsMargins
-                height: Style.btnHeight*0.8
-                spacing: Style.connectionWidth
-                MTK_FramedLabel{
-                    text: calibrate.timeFindCorners
-                    width: parent.width/3-parent.spacing*2/3
-                    height: parent.height
-                    border.color: Style.currentTheme.background
-                    radius: Style.unitRadius
-                    color: border.color
-                }
-                MTK_FramedLabel{
-                    text: calibrate.timeFindCorners
-                    width: parent.width/3-parent.spacing*2/3
-                    height: parent.height
-                    border.color: Style.currentTheme.background
-                    radius: Style.unitRadius
-                    color: border.color
-                }
-                MTK_FramedLabel{
-                    text: calibrate.timeFindCorners
-                    width: parent.width/3-parent.spacing*2/3
-                    height: parent.height
-                    border.color: Style.currentTheme.background
-                   radius: Style.unitRadius
-                   color: border.color
-                }
-            }
-
-            Row{
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.margins: Style.panelsMargins
-                height: Style.btnHeight*0.8
-                spacing: Style.connectionWidth
-                MTK_FramedLabel{
-                    text: calibrate.timeFindCorners
-                    width: parent.width/3-parent.spacing*2/3
-                    height: parent.height
-                    border.color: Style.currentTheme.background
-                    radius: Style.unitRadius
-                    color: border.color
-                }
-                MTK_FramedLabel{
-                    text: calibrate.timeFindCorners
-                    width: parent.width/3-parent.spacing*2/3
-                    height: parent.height
-                    border.color: Style.currentTheme.background
-                    radius: Style.unitRadius
-                    color: border.color
-                }
-                MTK_FramedLabel{
-                    text: calibrate.timeFindCorners
-                    width: parent.width/3-parent.spacing*2/3
-                    height: parent.height
-                    border.color: Style.currentTheme.background
-                   radius: Style.unitRadius
-                   color: border.color
-                }
-            }
-
-            Row{
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.margins: Style.panelsMargins
-                height: Style.btnHeight*0.8
-                spacing: Style.connectionWidth
-                MTK_FramedLabel{
-                    text: calibrate.timeFindCorners
-                    width: parent.width/3-parent.spacing*2/3
-                    height: parent.height
-                    border.color: Style.currentTheme.background
-                    radius: Style.unitRadius
-                    color: border.color
-                }
-                MTK_FramedLabel{
-                    text: calibrate.timeFindCorners
-                    width: parent.width/3-parent.spacing*2/3
-                    height: parent.height
-                    border.color: Style.currentTheme.background
-                    radius: Style.unitRadius
-                    color: border.color
-                }
-                MTK_FramedLabel{
-                    text: calibrate.timeFindCorners
-                    width: parent.width/3-parent.spacing*2/3
-                    height: parent.height
-                    border.color: Style.currentTheme.background
-                    radius: Style.unitRadius
-                    color: border.color
-                }
             }
 
             MTK_Label{

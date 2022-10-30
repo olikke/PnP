@@ -11,7 +11,7 @@ class GrabOpenCV : public QObject
 {
     Q_OBJECT
 public:
-    explicit GrabOpenCV(QObject *parent = nullptr, int _width=1920, int _height=1080);
+    GrabOpenCV(QObject *parent = nullptr, int _width=1920, int _height=1080);
     Q_PROPERTY(bool play READ getPlay NOTIFY playChanged)
     bool getPlay() {return m_play;}
 
