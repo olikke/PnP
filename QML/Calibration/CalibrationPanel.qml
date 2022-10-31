@@ -1,4 +1,5 @@
 import QtQuick 2.9
+import QtQuick.Window 2.2
 import Qt.labs.folderlistmodel 1.0
 import QtQuick.Dialogs 1.3
 
@@ -8,8 +9,6 @@ import "qrc:/QML"
 Row {
     id: root
     spacing: Style.connectionWidth
-
-    function openFileDialog() {openDialog.open()}
 
     FileDialog {
         id: openDialog
@@ -55,7 +54,7 @@ Row {
                     property string fn: fileName
                     property bool ch: true
 
-                    Image {
+                    Image {                     
                         id: image
                         anchors.fill: parent
                         anchors.bottomMargin: rec.height
@@ -63,6 +62,13 @@ Row {
                         fillMode: Image.PreserveAspectFit
                         source: folderModel.folder + fileName
                         antialiasing: true
+                        MouseArea{
+                            anchors.fill: parent
+                            onDoubleClicked: {
+                                fullscreenItem.set(image.source,photoFrame.x+x,photoFrame.y+y,image.width,image.height)
+//                                fullscreenItem.start()
+                            }
+                        }
                     }
                     Rectangle{
                         id: rec
@@ -105,7 +111,7 @@ Row {
         id: calibrationControl
         width: Style.sidePanel
         height: parent.height
-        onOpenFileDialog: framesPanel.openFileDialog()
+        onOpenFileDialog: openDialog.open()
         onStartCalibrate: {
             var recomendationList=[]
             var number=0
@@ -116,4 +122,38 @@ Row {
             calibrate.start(folderModel.folder,recomendationList)
         }
     }
+
+    Rectangle{
+        id: fullscreenItem
+        function set(_image, _x, _y, _width, _height) {
+            x=_x
+            y=_y
+            width=_width*2
+            height=_height*2
+            visible=true
+        }
+
+
+//        states: State{
+//            name: "in"
+//            PropertyChanges{target: fullscreenItem; x: 0; y: 0; width:Screen.width; height: Screen.height}
+//        }
+    width:0
+    height: 0
+      //  visible: false
+        color: "green"
+
+//        ParallelAnimation{
+//            id: anim
+//            NumberAnimation { property: "width"; to: root.width; duration: 1000}
+//            NumberAnimation { property: "height"; to: root.height; duration: 1000}
+//        }
+
+        MouseArea{
+            anchors.fill: parent
+            onDoubleClicked: parent.visible=false
+        }
+
+    }
+
 }

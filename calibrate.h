@@ -15,11 +15,12 @@
 class Calibrate;
 
 struct Task {
-    Calibrate* app;
     QString fileName;
     cv::Mat corners;
     cv::vector<cv::Point3f> object;
     float squareSize;
+    cv::Size boardSize;
+    cv::Size frameSize;
     bool success;
 };
 
@@ -51,20 +52,27 @@ public:
     Q_PROPERTY(int successFrame READ getSuccessFrame NOTIFY successFrameChanged)
     int  getSuccessFrame() {return m_succesFrame;}
 
+    Q_PROPERTY(int inputFrames READ getInputFrames NOTIFY inputFramesChanged)
+    int getInputFrames() {return m_inputFrames;}
+
     Q_PROPERTY(double errorRMS READ getErrorRMS NOTIFY errorRMSChanged)
     double getErrorRMS() {return m_errorRMS;}
 
     Q_INVOKABLE void start(QString url, QStringList fileName);
 
-    Q_INVOKABLE MatModel* getCameraMatrix() {return cameraModel;};
+    Q_INVOKABLE MatModel* getCameraModel() {return cameraModel;}
 
-    cv::Size boardSize() {return m_boardSize;}
+    Q_INVOKABLE MatModel* getDistModel() {return distModel;}
+
+    Q_INVOKABLE void save(QString url);
+
 signals:
     void iterationsChanged();
     void epsilonChanged();
     void workingTimeChanged();
     void successFrameChanged();
     void errorRMSChanged();
+    void inputFramesChanged();
 public slots:
 
 protected:
@@ -73,19 +81,17 @@ private:
     AppConfigMini* m_appConfig;
     cv::Mat cameraMatrix;
     MatModel* cameraModel;
+    cv::Mat distMatrix;
+    MatModel* distModel;
     QString tempDir;
-    cv::Size m_boardSize;
-    float m_squareSize;
     int m_iterations=30;
     double m_epsilon=0.1;
     int m_epsilonDivider=100;
     double m_workingTime=0.;
+    int m_inputFrames=0.;
     int m_succesFrame=0;
     double m_errorRMS=0.;
     void removeDir();
     bool reloadDir();
-    cv::vector<cv::Point3f> objPointsConst;
-    cv::vector<cv::vector<cv::Point3f>> objPoints; //координаты углов в пространстве
-    cv::vector<cv::vector<cv::Point2f>> imgPoints; //координаты углов на изображении (найденные с субпиксельной точностью)
     QStringList toString(cv::Mat mat);
 };

@@ -37,5 +37,6 @@
         <file>QML/CardBase/SliderCard.qml</file>
         <file>QML/CardBase/InfoCard.qml</file>
         <file>QML/CardBase/MatTableCard.qml</file>
+        <file>ASSETS/icon/save.svg</file>
     </qresource>
 </RCC>

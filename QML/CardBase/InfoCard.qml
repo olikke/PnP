@@ -6,10 +6,11 @@ import "qrc:/QML"
 Item {
     id: root
     width: parent.width
-    height: Style.cardHeight
+    height: Style.cardHeight*0.8
 
     property alias infoText: label1.text
     property alias labelText: label2.text
+
 
     MTK_FramedLabel{
         id: label1
@@ -17,7 +18,8 @@ Item {
         anchors.leftMargin: Style.panelsMargins
         anchors.verticalCenter: parent.verticalCenter
         width: Style.btnHeight
-        height: Style.btnHeight
+        height: Style.btnHeight*0.8
+        radius: Style.unitRadius/2
         border.color: Style.currentTheme.background
     }
 

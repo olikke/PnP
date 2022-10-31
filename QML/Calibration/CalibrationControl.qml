@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.4
+import QtQuick.Dialogs 1.3
 
 import "qrc:/QML/ElementBase"
 import "qrc:/QML/CardBase"
@@ -10,6 +11,16 @@ Rectangle{
 
     signal openFileDialog()
     signal startCalibrate()
+
+    FileDialog {
+        id: saveDialog
+        title: "Сохранить результаты калибровки камеры"
+        nameFilters: [ "XML files (*.xml)"  ]
+        selectExisting: false
+        onAccepted: {
+            calibrate.save(fileUrl)
+        }
+    }
 
     Flickable {
         id: root
@@ -104,7 +115,7 @@ Rectangle{
             SliderCard{
                 labelText: "Количество итерраций"
                 from: 10
-                to: 50
+                to: 100
                 value: calibrate.iterations
                 stepSize: 1
                 onMove: calibrate.iterations=value
@@ -136,6 +147,11 @@ Rectangle{
             }
 
             InfoCard{
+                infoText: calibrate.inputFrames
+                labelText: "выбрано для обработки кадров"
+            }
+
+            InfoCard{
                 infoText: calibrate.successFrame
                 labelText: "успешно обработано кадров"
             }
@@ -156,7 +172,7 @@ Rectangle{
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.margins: Style.panelsMargins
-                model: calibrate.getCameraMatrix()
+                model: calibrate.getCameraModel()
             }
 
             MTK_Label{
@@ -166,6 +182,20 @@ Rectangle{
                 horizontalAlignment: Text.AlignLeft
             }
 
+            MatTableCard{
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: Style.panelsMargins
+                model: calibrate.getDistModel()
+            }
+
+           MTK_HSeparator{}
+
+            ButtonCard{
+                iconSource:"qrc:/ASSETS/icon/save.svg"
+                labelText:  "Сохранить результаты"
+                onClicked: saveDialog.open()
+            }
 
             MTK_HSeparator{}
         }
