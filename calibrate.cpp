@@ -24,13 +24,12 @@ Task calc(const Task &task)
     cv::Size s=frame.size();
     if (s!=newTask.frameSize) return newTask;
    // const cv::Point3f kCenterOffset((newTask.boardSize.width - 1) * newTask.squareSize, (newTask.boardSize.height - 1) * newTask.squareSize, 0.f);
-    const cv::TermCriteria criteria=cv::TermCriteria(cv::TermCriteria::EPS+ cv::TermCriteria::COUNT,30, 0.1/*task.app->getIterations(),task.app->getEpsilon()*/);
     cv::cvtColor(frame,frame,CV_BGR2GRAY);
     newTask.success=cv::findChessboardCorners(frame,newTask.boardSize,newTask.corners);
     if (newTask.success) {
         //olikke cv::Size(11,11) зона поиска - изменение/производительность/точность
         // cv::Size(-1,-1) мёртвая зона
-        cv::cornerSubPix(frame,newTask.corners,cv::Size(11,11),cv::Size(-1,-1),criteria);
+        cv::cornerSubPix(frame,newTask.corners,cv::Size(11,11),cv::Size(-1,-1),newTask.criteria);
         cv::cvtColor(frame,frame,CV_GRAY2BGR);
         cv::drawChessboardCorners(frame,newTask.boardSize,newTask.corners,newTask.success);
         for (int i=0; i<newTask.boardSize.height; i++)
@@ -59,6 +58,7 @@ void Calibrate::start(QString url, QStringList fileName)
     m_inputFrames=list.count();
     inputFramesChanged();
     QList<Task> blank;
+    cv::TermCriteria criteria=cv::TermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,m_iterations,m_epsilon);
     for (QString fn: list) {
         if (!fileName.contains(fn)) continue;
         QFile::copy(QUrl(url).toLocalFile()+"/"+fn, tempDir+fn);
@@ -67,6 +67,7 @@ void Calibrate::start(QString url, QStringList fileName)
         task.squareSize=m_squareSize;
         task.boardSize=m_boardSize;
         task.frameSize=m_frameSize;
+        task.criteria=criteria;
         task.success=false;
         blank.push_back(task);        
     }
@@ -95,7 +96,7 @@ void Calibrate::start(QString url, QStringList fileName)
     cv::_OutputArray rotation;
     cv::_OutputArray translation;
     int flags =  cv::CALIB_FIX_PRINCIPAL_POINT;// | cv::CALIB_RATIONAL_MODEL;
-    m_errorRMS=cv::calibrateCamera(objPoints,imgPoints,m_frameSize,cameraMatrix,distMatrix,rotation,translation,flags,cv::TermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,m_iterations,m_epsilon));
+    m_errorRMS=cv::calibrateCamera(objPoints,imgPoints,m_frameSize,cameraMatrix,distMatrix,rotation,translation,flags,criteria);
     emit errorRMSChanged();
     cameraModel->update();
     distModel->update();

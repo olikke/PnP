@@ -38,5 +38,8 @@
         <file>QML/CardBase/InfoCard.qml</file>
         <file>QML/CardBase/MatTableCard.qml</file>
         <file>ASSETS/icon/save.svg</file>
+        <file>QML/PnP/PnPPanel.qml</file>
+        <file>QML/PnP/PnPControl.qml</file>
+        <file>ASSETS/icon/matrix.svg</file>
     </qresource>
 </RCC>

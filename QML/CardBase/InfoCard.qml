@@ -11,7 +11,6 @@ Item {
     property alias infoText: label1.text
     property alias labelText: label2.text
 
-
     MTK_FramedLabel{
         id: label1
         anchors.left: parent.left

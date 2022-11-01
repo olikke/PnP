@@ -15,6 +15,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
 void ImageProvider::updateImage(const cv::Mat im)
 {
     if (im.empty()) return;
-    image=QImage((uchar*) im.data, im.cols, im.rows, im.step, QImage::Format_Grayscale8);
+    if (im.channels()==1)  image=QImage((uchar*) im.data, im.cols, im.rows, im.step, QImage::Format_Grayscale8);
+    else image=QImage((uchar*) im.data, im.cols, im.rows, im.step, QImage::Format_RGB888);
     emit imageChanged();
 }

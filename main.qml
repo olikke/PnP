@@ -9,6 +9,7 @@ import "qrc:/QML"
 import "qrc:/QML/ElementBase"
 import "qrc:/QML/Calibration"
 import "qrc:/QML/Camera"
+import "qrc:/QML/PnP"
 
 ApplicationWindow {
     id: window
@@ -74,6 +75,10 @@ ApplicationWindow {
 
         CalibrationPanel{
             id: framesPanel
+        }
+
+        PnPPanel{
+            id: pnpPanel
         }
     }
 }

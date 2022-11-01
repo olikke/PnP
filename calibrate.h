@@ -21,6 +21,7 @@ struct Task {
     float squareSize;
     cv::Size boardSize;
     cv::Size frameSize;
+    cv::TermCriteria criteria;
     bool success;
 };
 
@@ -44,7 +45,7 @@ public:
     void setEpsilon(int val) {m_epsilon=val/m_epsilonDivider;}
 
     Q_PROPERTY(int epsilonDivider READ getEpsilonDivider CONSTANT)
-    int getEpsilonDivider() {return m_epsilonDivider;}
+    int getEpsilonDivider() {return qRound(m_epsilonDivider);}
 
     Q_PROPERTY(double workingTime READ getWorkingTime NOTIFY workingTimeChanged)
     double  getWorkingTime() {return m_workingTime/1000.;}
@@ -86,7 +87,7 @@ private:
     QString tempDir;
     int m_iterations=30;
     double m_epsilon=0.1;
-    int m_epsilonDivider=100;
+    double m_epsilonDivider=100.;
     double m_workingTime=0.;
     int m_inputFrames=0.;
     int m_succesFrame=0;
