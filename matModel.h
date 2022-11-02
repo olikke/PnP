@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QAbstractListModel>
 #include <QCoreApplication>
+#include <QDebug>
 #include <opencv2/opencv.hpp>
 #include <QQmlApplicationEngine>
 

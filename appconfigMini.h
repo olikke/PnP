@@ -45,6 +45,19 @@ public:
     int getSquareSize() {return m_squareSize;}
     void setSquareSize(int val) {m_squareSize=val;}
 
+    //кол-во итераций поиска субпикселей углов
+    Q_PROPERTY(int iterations READ getIterations WRITE setIterations NOTIFY iterationsChanged)
+    int getIterations() {return m_iterations;}
+    void setIterations(int val) {m_iterations=val;}
+
+    //точность поиска субпикселей углов
+    Q_PROPERTY(double epsilon READ getEpsilon WRITE setEpsilon NOTIFY epsilonChanged)
+    double getEpsilon() {return m_epsilon;}
+    void setEpsilon(double val) {m_epsilon=val;}
+
+    Q_PROPERTY(int epsilonDivider READ getEpsilonDivider CONSTANT)
+    int getEpsilonDivider() {return qRound(m_epsilonDivider);}
+
 signals:
     void darkThemeChanged(bool val);
     void xChanged(int val);
@@ -54,6 +67,8 @@ signals:
     void borderWidthChanged(int val);
     void borderHeightChanged(int val);
     void squareSizeChanged(float value);
+    void iterationsChanged();
+    void epsilonChanged();
 private:
     QSettings qsettings;
     bool m_darkTheme;
@@ -64,6 +79,9 @@ private:
     int m_borderWidth=7;
     int m_borderHeight=5;
     int m_squareSize=20;
+    int m_iterations=30;
+    double m_epsilon=0.1;
+    double m_epsilonDivider=100.;
 private:
     bool loadConfig();
     void writeConfig();

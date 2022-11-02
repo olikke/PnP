@@ -1,11 +1,11 @@
 ﻿#include "calibrate.h"
 
-Calibrate::Calibrate(QObject *parent,AppConfigMini* appConfig) :
+Calibrate::Calibrate(AppConfigMini* appConfig,QObject *parent) :
     QObject(parent),
     m_appConfig(appConfig),
-    cameraMatrix(cv::Mat(3,3,CV_32FC1)),
+    cameraMatrix(cv::Mat(3,3,CV_64FC1)),
     cameraModel(new MatModel(&cameraMatrix,this)),
-    distMatrix(cv::Mat(1,5,CV_32FC1)),
+    distMatrix(cv::Mat(1,5,CV_64FC1)),
     distModel(new MatModel(&distMatrix,this)),
     tempDir(QCoreApplication::applicationDirPath()+"/.temporary/")
 {
@@ -58,7 +58,7 @@ void Calibrate::start(QString url, QStringList fileName)
     m_inputFrames=list.count();
     inputFramesChanged();
     QList<Task> blank;
-    cv::TermCriteria criteria=cv::TermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,m_iterations,m_epsilon);
+    cv::TermCriteria criteria=cv::TermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,m_appConfig->getIterations(),m_appConfig->getEpsilon());
     for (QString fn: list) {
         if (!fileName.contains(fn)) continue;
         QFile::copy(QUrl(url).toLocalFile()+"/"+fn, tempDir+fn);

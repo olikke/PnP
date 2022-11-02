@@ -30,6 +30,7 @@ ApplicationWindow {
         anchors.top: parent.top
         onCloseApp: close()
         onMinimizeApp: window.showMinimized()
+        onOpenTools: value?  drawer.open() : drawer.close()
 
         Tabbar{
             id: tapbar
@@ -49,17 +50,18 @@ ApplicationWindow {
             }
 
             Tabbutton {
-                text: "Устранение искажений"
+                text: "Позиционирование по доске"
             }
 
             Tabbutton {
-                text: "Позиционирование"
+                text: "Устранение искажений"
             }
         }
     }
 
 
     SwipeView{
+
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.right: parent.right
@@ -79,6 +81,18 @@ ApplicationWindow {
 
         PnPPanel{
             id: pnpPanel
+        }
+    }
+
+    MTK_Drawer{
+        id: drawer
+
+        width: Style.sidePanel+1
+        height: parent.height - topBar.height-Style.connectionWidth
+        y: topBar.height+Style.connectionWidth
+        edge: Qt.RightEdge
+        Settings{
+
         }
     }
 }

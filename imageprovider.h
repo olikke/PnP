@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QImage>
+#include <QDebug>
 #include <QQuickImageProvider>
 #include <opencv2/opencv.hpp>
 
@@ -16,7 +17,7 @@ public:
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
 
 public slots:
-    void updateImage(const cv::Mat im);
+    void updateImage(cv::Mat im);
 signals:
     void imageChanged();
 private:

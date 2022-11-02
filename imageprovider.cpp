@@ -12,10 +12,14 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     return image;
 }
 
-void ImageProvider::updateImage(const cv::Mat im)
+void ImageProvider::updateImage(cv::Mat im)
 {
     if (im.empty()) return;
     if (im.channels()==1)  image=QImage((uchar*) im.data, im.cols, im.rows, im.step, QImage::Format_Grayscale8);
-    else image=QImage((uchar*) im.data, im.cols, im.rows, im.step, QImage::Format_RGB888);
+    else {
+    //    cv::Mat temp=cv::Mat(im.cols,im.rows,im.type());
+     //   cvtColor(im, temp, CV_BGR2RGB);
+        image=QImage((uchar*) im.data, im.cols,im.rows, im.step, QImage::Format_RGB888);
+    }
     emit imageChanged();
 }

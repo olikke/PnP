@@ -4,7 +4,6 @@ import "qrc:/QML"
 
 Text{
     id: root
-
     verticalAlignment: Text.AlignVCenter
     horizontalAlignment: Text.AlignHCenter
     font.family: Style.robotoCondensed

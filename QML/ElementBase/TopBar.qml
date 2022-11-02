@@ -9,6 +9,18 @@ Rectangle {
 
     signal closeApp()
     signal minimizeApp()
+    signal openTools(bool value)
+
+    MTK_IconButton{
+        property bool open: false
+        anchors.right: minimize.left
+        anchors.rightMargin: Style.panelsMargins
+        source: "qrc:/ASSETS/icon/menu.svg"
+        onClicked: {
+            open=!open
+            openTools(open)
+        }
+    }
 
     MTK_IconButton{
         id: minimize

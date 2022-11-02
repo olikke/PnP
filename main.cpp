@@ -38,13 +38,13 @@ int main(int argc, char *argv[])
     FolderBackend* folderBack=new FolderBackend(&app);
     context->setContextProperty("folderBack",folderBack);
 
-    Calibrate* calibrate=new Calibrate(&app,appConfig);
+    Calibrate* calibrate=new Calibrate(appConfig,&app);
     context->setContextProperty("calibrate",calibrate);
 
-    PnP* pnp=new PnP(&app);
+    PnP* pnp=new PnP(appConfig,&app);
     context->setContextProperty("pnpos",pnp);
 
-    ImageProvider* pnpProvider = new ImageProvider(&app);
+    ImageProvider* pnpProvider = new ImageProvider(&app,QSize(appConfig->getFrameWidth(),appConfig->getFrameHeight()));
     context->setContextProperty("pnpProvider",pnpProvider);
     engine.addImageProvider("plive",pnpProvider);
 

@@ -26,6 +26,8 @@ bool AppConfigMini::loadConfig()
         m_borderWidth=qsettings.value("borderWidth",7).toInt();
         m_borderHeight=qsettings.value("borderHeight",5).toInt();
         m_squareSize=qsettings.value("squareSize_mm",20).toInt();
+        m_epsilon=qsettings.value("epsilon",0.1).toDouble();
+        m_iterations=qsettings.value("iterations",30).toInt();
         qsettings.endGroup();
         return true;
     }
@@ -43,5 +45,7 @@ void AppConfigMini::writeConfig()
     qsettings.setValue("borderWidth",m_borderWidth);
     qsettings.setValue("borderHeight",m_borderHeight);
     qsettings.setValue("squareSize_mm",m_squareSize);
+    qsettings.setValue("epsilon",m_epsilon);
+    qsettings.setValue("iterations",m_iterations);
     qsettings.endGroup();
 }

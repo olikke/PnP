@@ -41,5 +41,9 @@
         <file>QML/PnP/PnPPanel.qml</file>
         <file>QML/PnP/PnPControl.qml</file>
         <file>ASSETS/icon/matrix.svg</file>
+        <file>ASSETS/Checkerboard.png</file>
+        <file>ASSETS/icon/menu.svg</file>
+        <file>QML/ElementBase/MTK_Drawer.qml</file>
+        <file>Settings.qml</file>
     </qresource>
 </RCC>

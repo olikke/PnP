@@ -31,21 +31,8 @@ class Calibrate : public QObject
 public:
     // есть разночтения - учитывать ли squareSize (т.е. размер квадрата доски) ИМЕННО КВАДРАТА! ровного
    // boardWidth и boardHeight кол-во углов доски
-    Calibrate(QObject *parent = nullptr,AppConfigMini* appConfig=nullptr);
+    Calibrate(AppConfigMini* appConfig,QObject *parent = nullptr);
     ~Calibrate();
-
-    //кол-во итераций поиска субпикселей углов
-    Q_PROPERTY(int iterations READ getIterations WRITE setIterations NOTIFY iterationsChanged)
-    int getIterations() {return m_iterations;}
-    void setIterations(int val) {m_iterations=val;}
-
-    //точность поиска субпикселей углов
-    Q_PROPERTY(int epsilon READ getEpsilon WRITE setEpsilon NOTIFY epsilonChanged)
-    int getEpsilon() {return qCeil(m_epsilon*m_epsilonDivider);}
-    void setEpsilon(int val) {m_epsilon=val/m_epsilonDivider;}
-
-    Q_PROPERTY(int epsilonDivider READ getEpsilonDivider CONSTANT)
-    int getEpsilonDivider() {return qRound(m_epsilonDivider);}
 
     Q_PROPERTY(double workingTime READ getWorkingTime NOTIFY workingTimeChanged)
     double  getWorkingTime() {return m_workingTime/1000.;}
@@ -68,8 +55,6 @@ public:
     Q_INVOKABLE void save(QString url);
 
 signals:
-    void iterationsChanged();
-    void epsilonChanged();
     void workingTimeChanged();
     void successFrameChanged();
     void errorRMSChanged();
@@ -85,9 +70,6 @@ private:
     cv::Mat distMatrix;
     MatModel* distModel;
     QString tempDir;
-    int m_iterations=30;
-    double m_epsilon=0.1;
-    double m_epsilonDivider=100.;
     double m_workingTime=0.;
     int m_inputFrames=0.;
     int m_succesFrame=0;

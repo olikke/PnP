@@ -27,7 +27,10 @@ int MatModel::columnCount(const QModelIndex &parent) const
 QVariant MatModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || role != Qt::DisplayRole) return QVariant();
-    return m_mat->at<qreal>(index.row());
+    if (m_mat->type()==CV_32FC1)  return m_mat->at<float>(index.row());
+    if (m_mat->type()==CV_64FC1) return m_mat->at<double>(index.row());
+    qDebug()<<"UNKNOWN DATA TYPE"<<m_mat->type();
+    return -1;
 }
 
 void MatModel::update()
