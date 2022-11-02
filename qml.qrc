@@ -41,9 +41,11 @@
         <file>QML/PnP/PnPPanel.qml</file>
         <file>QML/PnP/PnPControl.qml</file>
         <file>ASSETS/icon/matrix.svg</file>
-        <file>ASSETS/Checkerboard.png</file>
         <file>ASSETS/icon/menu.svg</file>
         <file>QML/ElementBase/MTK_Drawer.qml</file>
         <file>Settings.qml</file>
+        <file>ASSETS/Chessboard.png</file>
+        <file>QML/PnP/Target.qml</file>
+        <file>ASSETS/icon/ads_click.svg</file>
     </qresource>
 </RCC>

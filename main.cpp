@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     context->setContextProperty("calibrate",calibrate);
 
     PnP* pnp=new PnP(appConfig,&app);
-    context->setContextProperty("pnpos",pnp);
+    context->setContextProperty("pnp",pnp);
 
     ImageProvider* pnpProvider = new ImageProvider(&app,QSize(appConfig->getFrameWidth(),appConfig->getFrameHeight()));
     context->setContextProperty("pnpProvider",pnpProvider);

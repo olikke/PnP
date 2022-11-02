@@ -30,7 +30,7 @@ Row {
             }
             MouseArea{
                 anchors.fill: parent
-                onClicked: pnpos.findPoint(Qt.point(mouseX,mouseY))
+                onClicked: pnp.findPoint(Qt.point(mouseX,mouseY))
             }
         }
 
@@ -50,7 +50,7 @@ Row {
         title: "Открыть изображение"
         nameFilters: [ "Image files (*.bmp *.jpg *.png *.jpeg)"  ]
         onAccepted: {
-           pnpos.openImage(fileUrl)
+           pnp.openImage(fileUrl)
         }
     }
 
@@ -59,7 +59,7 @@ Row {
         title: "Открыть результаты калибровки камеры"
         nameFilters: [ "XML files (*.xml)"  ]
         onAccepted: {
-            pnpos.openMatrix(fileUrl)
+            pnp.openMatrix(fileUrl)
         }
     }
 

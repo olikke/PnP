@@ -72,14 +72,17 @@ ApplicationWindow {
         interactive: false
 
         CameraPanel{
+            clip: true
             id: cameraPanel
         }
 
         CalibrationPanel{
+            clip: true
             id: framesPanel
         }
 
         PnPPanel{
+            clip: true
             id: pnpPanel
         }
     }

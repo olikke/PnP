@@ -30,25 +30,32 @@ public:
 
     Q_PROPERTY(int radius READ getRadius WRITE setRadius NOTIFY radiusChanged)
     int getRadius() {return m_radius;}
-    void setRadius(int val) {m_radius=val;}
+    void setRadius(int val);
+
+    Q_PROPERTY(int pointNumb READ getPointNumb WRITE setPointNumb NOTIFY pointNumbChanged)
+    int getPointNumb() {return m_pointNumb;}
+    void setPointNumb(int numb);
 
 signals:
     void newFrame(const cv::Mat frame);
-    void radiusChanged();
+    void radiusChanged(int);
+    void pointNumbChanged(int);
 public slots:
 
 private:
     AppConfigMini* m_appConfig;
-        cv::Mat cameraMatrix;
-        cv::Mat distMatrix;
-        cv::Mat imgPoints;
-        cv::Mat objPoints;
-        MatModel* cameraModel;
-        MatModel* distModel;       
-        MatModel* imgModel;
-        MatModel* objModel;
-        cv::Mat image;
-        int m_radius=29;
-        void findChessboardCorners();
-        cv::Mat corners;
+    cv::Mat cameraMatrix;
+    cv::Mat distMatrix;
+    cv::Mat imgPoints;
+    cv::Mat objPoints;
+    MatModel* cameraModel;
+    MatModel* distModel;
+    MatModel* imgModel;
+    MatModel* objModel;
+    cv::Mat image;
+    int m_radius=29;
+    void findChessboardCorners();
+    cv::Mat corners;
+    int m_pointNumb=0;
+    void clearMatrix();
 };

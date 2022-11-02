@@ -54,7 +54,7 @@ Rectangle{
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.margins: Style.panelsMargins
-                model: pnpos.getCameraModel()
+                model: pnp.getCameraModel()
             }
 
             MTK_HSeparator{}
@@ -74,7 +74,7 @@ Rectangle{
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.margins: Style.panelsMargins
-                model: pnpos.getDistModel()
+                model: pnp.getDistModel()
             }
 
             MTK_HSeparator{}
@@ -101,40 +101,67 @@ Rectangle{
                anchors.right: parent.right
                anchors.margins: Style.panelsMargins
                height: width
-               source: "qrc:/ASSETS/Checkerboard.png"
+               source: "qrc:/ASSETS/Chessboard.png"
 
-               Item{
-                   width: 40
-                   height: 40
+               Rectangle{
+                  anchors.fill: parent
+                  anchors.margins: parent.width/6
+                  radius: parent.width/3
+                  border.color: Style.currentTheme.accent
+                  border.width: 3
+                  color: "transparent"
+               }
+
+               Target{
+                   anchors.centerIn: parent
+                   number: 0
+                   onClick: pnp.pointNumb=number
+                   current: number===pnp.pointNumb
+               }
+
+               Target{
                    anchors.verticalCenter: parent.verticalCenter
                    anchors.horizontalCenter: parent.horizontalCenter
-                   Rectangle{
-                       id: rec
-                       width: 20
-                       height: 20
-                       anchors.verticalCenter: parent.verticalCenter
-                       anchors.horizontalCenter: parent.horizontalCenter
-                       color: "red"
-                       radius: 10
-                   }
-                   MouseArea{
-                       anchors.fill: parent
-                       onPressedChanged: pressed? rec.color="blue": rec.color="red"
-
-                       onClicked: {
-                           console.log("CENTRAL")
-                       }
-                   }
-
-
+                   anchors.horizontalCenterOffset: -parent.width/3
+                   number: 1
+                   onClick: pnp.pointNumb=number
+                   current: number===pnp.pointNumb
                }
+
+               Target{
+                   anchors.verticalCenter: parent.verticalCenter
+                   anchors.horizontalCenter: parent.horizontalCenter
+                   anchors.verticalCenterOffset: -parent.width/3
+                   number: 2
+                   onClick: pnp.pointNumb=number
+                   current: number===pnp.pointNumb
+               }
+
+               Target{
+                   anchors.verticalCenter: parent.verticalCenter
+                   anchors.horizontalCenter: parent.horizontalCenter
+                   anchors.horizontalCenterOffset: parent.width/3
+                   number: 3
+                   onClick: pnp.pointNumb=number
+                   current: number===pnp.pointNumb
+               }
+
+               Target{
+                   anchors.verticalCenter: parent.verticalCenter
+                   anchors.horizontalCenter: parent.horizontalCenter
+                   anchors.verticalCenterOffset: parent.width/3
+                   number: 4
+                   onClick: pnp.pointNumb=number
+                   current: number===pnp.pointNumb
+               }
+
            }
 
            MatTableCard{
                anchors.left: parent.left
                anchors.right: parent.right
                anchors.margins: Style.panelsMargins
-               model: pnpos.getImgModel()
+               model: pnp.getImgModel()
            }
 
            MTK_HSeparator{}
@@ -154,7 +181,7 @@ Rectangle{
                anchors.left: parent.left
                anchors.right: parent.right
                anchors.margins: Style.panelsMargins
-               model: pnpos.getObjModel()
+               model: pnp.getObjModel()
            }
 
            MTK_HSeparator{}

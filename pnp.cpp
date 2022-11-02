@@ -12,9 +12,7 @@ PnP::PnP(AppConfigMini* appConfig,QObject *parent) :
     imgModel(new MatModel(&imgPoints,this)),
     objModel(new MatModel(&objPoints,this))
 {
-    imgPoints=cv::Mat::zeros(imgPoints.rows,imgPoints.cols,imgPoints.type());
-    imgModel->update();
-    objPoints=cv::Mat::zeros(objPoints.rows,objPoints.cols,objPoints.type());
+    clearMatrix();
 }
 
 void PnP::openMatrix(QString url)
@@ -39,11 +37,11 @@ void PnP::openImage(QString url)
     image=cv::imread(QUrl(url).toLocalFile().toLatin1().constData());
     emit newFrame(image);
     findChessboardCorners();
+    clearMatrix();
 }
 
 void PnP::findPoint(QPointF point)
 {
-    qDebug()<<point;
     double distance=1000.;
     int numb=-1;
     for (int i=0; i<corners.total();i++) {
@@ -57,11 +55,23 @@ void PnP::findPoint(QPointF point)
     if (numb<0) return;
     cv::circle(image,cv::Point(corners.at<cv::Vec2f>(numb)),5, CV_RGB(255,0,0), 1, CV_AA, 0);
     emit newFrame(image);
-    qDebug()<<corners.at<cv::Vec2f>(numb)[0]<<corners.at<cv::Vec2f>(numb)[1];
-    imgPoints.at<double>(0,0)=static_cast<double>(corners.at<cv::Vec2f>(numb)[0]);
-    imgPoints.at<double>(1,0)=static_cast<double>(corners.at<cv::Vec2f>(numb)[1]);
+    imgPoints.at<double>(0,m_pointNumb)=static_cast<double>(corners.at<cv::Vec2f>(numb)[0]);
+    imgPoints.at<double>(1,m_pointNumb)=static_cast<double>(corners.at<cv::Vec2f>(numb)[1]);
     imgModel->update();
+}
 
+void PnP::setRadius(int val)
+{
+    m_radius=val;
+    emit radiusChanged(val);
+}
+
+void PnP::setPointNumb(int numb)
+{
+   if (numb<0 || numb>distMatrix.cols-1) return;
+   m_pointNumb=numb;
+   emit pointNumbChanged(numb);
+   imgModel->highlightColumn(m_pointNumb);
 }
 
 void PnP::findChessboardCorners()
@@ -75,4 +85,13 @@ void PnP::findChessboardCorners()
         cv::cornerSubPix(temp,corners,cv::Size(11,11),cv::Size(-1,-1),criteria);
     }
     qDebug()<<corners.type()<<CV_32FC2<<corners.total()<<corners.step;
+}
+
+void PnP::clearMatrix()
+{
+    imgPoints=cv::Mat::zeros(imgPoints.rows,imgPoints.cols,imgPoints.type());
+    imgModel->update();
+    objPoints=cv::Mat::zeros(objPoints.rows,objPoints.cols,objPoints.type());
+    objModel->update();
+    imgModel->highlightColumn(m_pointNumb);
 }
