@@ -25,7 +25,7 @@ Column{
         delegate:Rectangle {
             width:root.cellWidth-Style.connectionWidth
             height: root.cellHeight-Style.connectionWidth
-            color: decoration? Style.currentTheme.accent:Style.currentTheme.primary
+            color: highligth? Style.currentTheme.accent:Style.currentTheme.primary
             border.color: Style.currentTheme.background
             border.width: 2
             radius: Style.unitRadius/2

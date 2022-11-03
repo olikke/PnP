@@ -91,7 +91,6 @@ void Calibrate::start(QString url, QStringList fileName)
         distModel->update();
         return;
     }
-
     //https://stackoverflow-com.translate.goog/questions/53277597/fundamental-understanding-of-tvecs-rvecs-in-opencv-aruco?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
     cv::_OutputArray rotation;
     cv::_OutputArray translation;

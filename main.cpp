@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
     engine.addImageProvider("plive",pnpProvider);
 
     QObject::connect(pnp,&PnP::newFrame,pnpProvider,&ImageProvider::updateImage);
+    QObject::connect(appConfig,&AppConfigMini::squareSizeChanged,pnp,&PnP::squareSizeChanged);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())  return -1;

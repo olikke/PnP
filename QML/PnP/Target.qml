@@ -5,7 +5,6 @@ import "qrc:/QML"
 Item {
     width: 40
     height: width
-    property bool showIcon: true
     property bool current: false
     onCurrentChanged: {
         current? targetAnimation.start() : targetAnimation.stop()
@@ -26,13 +25,15 @@ Item {
     signal click()
     Rectangle{
         id: rec
-        width: parent.width*0.75
+        property int minSize:parent.width*0.75
+        property int maxSize:parent.width
+        width: minSize
         height: width
         radius: width/2
         color: "transparent"
         anchors.centerIn: parent
         Image{
-            visible: showIcon & current
+            visible: current
             anchors.fill: parent
             source: "qrc:/ASSETS/icon/ads_click.svg"
         }
@@ -40,28 +41,26 @@ Item {
 
     SequentialAnimation{
         id: targetAnimation
+        loops: Animation.Infinite
         NumberAnimation {
             target: rec
-            loops: Animation.Infinite
             properties: "width"
-            from:  width*0.75
-            to: width*1.25
+            from:  rec.minSize
+            to: rec.maxSize
             duration: Style.animationDuration*4
             easing.type: Easing.Linear
         }
         NumberAnimation {
             target: rec
-            loops: Animation.Infinite
             properties: "width"
-            from:  width*1.25
-            to: width*0.75
+            from:  rec.maxSize
+            to: rec.minSize
             duration: Style.animationDuration*4
         }
     }
 
     MouseArea{
         anchors.fill: parent
-        onPressedChanged: rec.width=pressed?parent.width: parent.width*0.75
         onClicked: click()
     }
 

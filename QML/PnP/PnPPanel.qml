@@ -28,12 +28,43 @@ Row {
                 source=""
                 source="image://plive/image"
             }
+            Target{
+                id: trg
+                number: pnp.pointNumb
+                visible: true;
+                width: 20
+                opacity: 0.5
+                x: ma.mouseX-width/2
+                y:ma.mouseY-height/2
+            }
             MouseArea{
+                id: ma
+                hoverEnabled: true
                 anchors.fill: parent
                 onClicked: pnp.findPoint(Qt.point(mouseX,mouseY))
+                onEntered: trg.visible=true
+                onExited: trg.visible=false
+                onWheel: pnp.changePointNumb(wheel.angleDelta.y>0)
+            }
+            Repeater{
+                model: 5
+                Target{
+                    number: index
+                    Connections{
+                        target: pnp
+                        onPaintTarget:  if (numb==number) {
+                                            visible=true
+                                            x=point.x-width/2;
+                                            y=point.y-width/2
+                                        }
+                        onClearTarget: if (numb==number) visible=false
+                        onClearAll: visible=false;
+                    }
+                    visible: false
+                    width: 20
+                }
             }
         }
-
     }
 
     PnPControl{

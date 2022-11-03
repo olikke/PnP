@@ -34,13 +34,19 @@ QVariant MatModel::data(const QModelIndex &index, int role) const
         qDebug()<<"UNKNOWN DATA TYPE"<<m_mat->type();
         return -1;
     }
-    case Qt::DecorationRole: {
+    case HighligthRole:
         return (m_highlightCol && index.row()%m_mat->cols==m_highlightNumb) ||
                (m_highlightRow && index.row()/m_mat->cols==m_highlightNumb);
-    }
     default:
         return QVariant();
     }
+}
+
+QHash<int, QByteArray> MatModel::roleNames() const
+{
+    QHash<int, QByteArray> roles = QAbstractListModel::roleNames();
+    roles[HighligthRole] = "highligth";
+    return roles;
 }
 
 void MatModel::update()

@@ -28,20 +28,26 @@ public:
 
     Q_INVOKABLE void findPoint(QPointF point);
 
-    Q_PROPERTY(int radius READ getRadius WRITE setRadius NOTIFY radiusChanged)
-    int getRadius() {return m_radius;}
-    void setRadius(int val);
-
     Q_PROPERTY(int pointNumb READ getPointNumb WRITE setPointNumb NOTIFY pointNumbChanged)
     int getPointNumb() {return m_pointNumb;}
     void setPointNumb(int numb);
 
+    Q_INVOKABLE void changePointNumb(bool incNumb);
+
+    Q_PROPERTY(bool ready READ getReady NOTIFY readyChanged)
+    bool getReady() {return m_ready;}
+
+    Q_INVOKABLE void start();
 signals:
     void newFrame(const cv::Mat frame);
     void radiusChanged(int);
     void pointNumbChanged(int);
+    void paintTarget(int numb, QPointF point);
+    void clearTarget(int numb);
+    void clearAll();
+    void readyChanged();
 public slots:
-
+    void squareSizeChanged(int value);
 private:
     AppConfigMini* m_appConfig;
     cv::Mat cameraMatrix;
@@ -53,9 +59,12 @@ private:
     MatModel* imgModel;
     MatModel* objModel;
     cv::Mat image;
-    int m_radius=29;
+    int m_radius=0;
     void findChessboardCorners();
     cv::Mat corners;
     int m_pointNumb=0;
-    void clearMatrix();
+    void clearImgMatrix();
+    void calcObjPoint();
+    bool m_ready=false;
+    void clearCameraMatrix();
 };

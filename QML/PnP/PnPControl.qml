@@ -186,6 +186,15 @@ Rectangle{
 
            MTK_HSeparator{}
 
+           ButtonCard{
+               enabled: pnp.ready
+               iconSource:"qrc:/ASSETS/icon/play.svg"
+               labelText:  "Запуск"
+               onClicked: pnp.start()
+           }
+
+           MTK_HSeparator{}
+
         }
     }
 }
