@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QPointF>
 #include <QtMath>
+#include <QTransform>
+#include <QPolygon>
 #include <opencv2/opencv.hpp>
 #include "matModel.h"
 #include "appconfigMini.h"
@@ -14,15 +16,15 @@ class PnP : public QObject
 public:
     PnP(AppConfigMini* appConfig,QObject *parent = nullptr);
 
-    Q_INVOKABLE void openMatrix(QString url);
+    Q_INVOKABLE void openMatrix(QString url);  //открыть матрицы калибровки и коэфф искажений
 
-    Q_INVOKABLE MatModel* getCameraModel() {return cameraModel;}
+    Q_INVOKABLE MatModel* getCameraModel() {return cameraModel;}  // просмотр модели внутренних параметров камеры (калибровки)
 
-    Q_INVOKABLE MatModel* getDistModel() {return distModel;}
+    Q_INVOKABLE MatModel* getDistModel() {return distModel;} //просмотр модели коэфф искажений
 
-    Q_INVOKABLE MatModel* getImgModel() {return imgModel;}
+    Q_INVOKABLE MatModel* getImgModel() {return imgModel;} //координаты точек проекции объекта кадре
 
-    Q_INVOKABLE MatModel* getObjModel() {return objModel;}
+    Q_INVOKABLE MatModel* getObjModel() {return objModel;} //координаты точек объекта в пространстве
 
     Q_INVOKABLE void openImage(QString url);
 
@@ -34,10 +36,19 @@ public:
 
     Q_INVOKABLE void changePointNumb(bool incNumb);
 
-    Q_PROPERTY(bool ready READ getReady NOTIFY readyChanged)
+    Q_PROPERTY(bool ready READ getReady NOTIFY readyChanged)  //готовность к позиционированию
     bool getReady() {return m_ready;}
 
-    Q_INVOKABLE void start();
+    Q_INVOKABLE void start(); //запуск позиционирования
+
+    Q_PROPERTY(bool pnpReady READ getPnpReady NOTIFY pnpReadyChanged) //удачное завершение позициоонирования
+    bool getPnpReady() {return m_pnpReady;}
+
+    Q_INVOKABLE MatModel* getRotation() {return rotModel;} // модель итоговой матрицы поворота
+
+    Q_INVOKABLE MatModel* getTranslation() {return transModel;} //модель итоговой матрицы переноса
+
+    Q_INVOKABLE void antiRotate();  //восстановление изображения по матрице поворота (для оценки результата)
 signals:
     void newFrame(const cv::Mat frame);
     void radiusChanged(int);
@@ -46,6 +57,7 @@ signals:
     void clearTarget(int numb);
     void clearAll();
     void readyChanged();
+    void pnpReadyChanged();
 public slots:
     void squareSizeChanged(int value);
 private:
@@ -54,10 +66,14 @@ private:
     cv::Mat distMatrix;
     cv::Mat imgPoints;
     cv::Mat objPoints;
+    cv::Mat rotation;
+    cv::Mat translation;
     MatModel* cameraModel;
     MatModel* distModel;
     MatModel* imgModel;
     MatModel* objModel;
+    MatModel* rotModel;
+    MatModel* transModel;
     cv::Mat image;
     int m_radius=0;
     void findChessboardCorners();
@@ -66,5 +82,6 @@ private:
     void clearImgMatrix();
     void calcObjPoint();
     bool m_ready=false;
+    bool m_pnpReady=false;
     void clearCameraMatrix();
 };

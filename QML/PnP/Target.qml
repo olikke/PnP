@@ -18,7 +18,7 @@ Item {
         case 1: rec.color="#9c27b0"; break;
         case 2: rec.color="#7cb342"; break;
         case 3: rec.color="#ffeb3b"; break;
-        case 4: rec.color="#f57c00"; break;
+        case 4: rec.color="#1e88e5"; break;
         }
     }
 

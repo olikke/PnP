@@ -47,5 +47,6 @@
         <file>ASSETS/Chessboard.png</file>
         <file>QML/PnP/Target.qml</file>
         <file>ASSETS/icon/ads_click.svg</file>
+        <file>ASSETS/icon/rotate.svg</file>
     </qresource>
 </RCC>

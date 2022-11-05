@@ -7,10 +7,14 @@ PnP::PnP(AppConfigMini* appConfig,QObject *parent) :
     distMatrix(cv::Mat(1,5,CV_64FC1)),
     imgPoints(cv::Mat(2,5,CV_64FC1)),
     objPoints(cv::Mat(3,5,CV_64FC1)),
+    rotation(cv::Mat(1,3,CV_64FC1)),
+    translation(cv::Mat(1,3,CV_64FC1)),
     cameraModel(new MatModel(&cameraMatrix,this)),
     distModel(new MatModel(&distMatrix,this)),
     imgModel(new MatModel(&imgPoints,this)),
-    objModel(new MatModel(&objPoints,this))
+    objModel(new MatModel(&objPoints,this)),
+    rotModel(new MatModel(&rotation,this)),
+    transModel(new MatModel(&translation,this))
 {
     imgPoints=cv::Mat::zeros(imgPoints.rows,imgPoints.cols,imgPoints.type());
     imgModel->update();
@@ -87,8 +91,8 @@ void PnP::changePointNumb(bool incNumb)
 
 void PnP::start()
 {
-    cv::Mat rotation;
-    cv::Mat translation;
+    //cv::Mat rotation;
+   // cv::Mat translation;
     std::vector<cv::Point3d> objVector;
     for (int i=0; i<objPoints.cols; i++) {
         objVector.push_back(cv::Point3d(objPoints.at<double>(0,i),objPoints.at<double>(1,i),objPoints.at<double>(2,i)));
@@ -96,12 +100,53 @@ void PnP::start()
     std::vector<cv::Point2f>imgVector;
     for (int i=0; i<imgPoints.cols; i++)
         imgVector.push_back(cv::Point2d(imgPoints.at<double>(0,i),imgPoints.at<double>(1,i)));
-    if (!cv::solvePnP(objVector,imgVector,cameraMatrix,distMatrix,rotation,translation)) return;
+    if (!cv::solvePnP(objVector,imgVector,cameraMatrix,distMatrix,rotation,translation)) {
+        m_pnpReady=false;
+        emit pnpReadyChanged();
+        return;
+    }
+    qDebug()<<rotation.type()<<translation.type()<<cameraMatrix.type();
     std::cout << "solvePNP Rotation Vector: " << rotation << std::endl;
     std::cout << "solvePNP TranslationVector: " << translation << std::endl;
     cv::Mat rotationMatrix;
     cv::Rodrigues(rotation,rotationMatrix);
     std::cout<<"Rotation Matrix: "<<rotationMatrix<<std::endl;
+    rotModel->update();
+    transModel->update();
+    m_pnpReady=true;
+    emit pnpReadyChanged();
+}
+
+void PnP::antiRotate()
+{
+    int width=image.cols;
+    int height=image.rows;
+    //координаты новых углов трапеции найдём через QTransform
+    //QTransform расчитывается относительно точки (0,0). Не всегда очевидно:
+    //для нас центральная точка - это QPoint(imgPoints(0,0),imgPoints(1,0)) m_pointNUmb==0
+    QTransform transform=QTransform();
+    transform.translate(imgPoints.at<double>(0,0),imgPoints.at<double>(1,0));
+    transform.rotate(qRadiansToDegrees(rotation.at<double>(0)),Qt::XAxis);
+    transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
+    transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
+    transform.translate(-imgPoints.at<double>(0,0),-imgPoints.at<double>(1,0));
+    QRect srcRect=QRect(0,0,width,height);
+    QPolygon polygon=transform.mapToPolygon(srcRect);
+    //само преобразование через матрицу гомографии
+    std::vector<cv::Point2f> src;
+    src.push_back(cv::Point2f(0,0));
+    src.push_back(cv::Point2f(width,0));
+    src.push_back(cv::Point2f(width,height));
+    src.push_back(cv::Point2f(0,height));
+    std::vector<cv::Point2f> dst;
+    dst.push_back(cv::Point2f(polygon.point(0).x(),polygon.point(0).y()));
+    dst.push_back(cv::Point2f(polygon.point(1).x(),polygon.point(1).y()));
+    dst.push_back(cv::Point2f(polygon.point(2).x(),polygon.point(2).y()));
+    dst.push_back(cv::Point2f(polygon.point(3).x(),polygon.point(3).y()));
+    cv::Mat homo=cv::findHomography(src,dst,CV_RANSAC,5.);
+    cv::Mat image2;
+    cv::warpPerspective(image,image2,homo,cv::Size());
+    cv::imshow("ooooo",image2);
 }
 
 void PnP::squareSizeChanged(int value)

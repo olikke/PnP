@@ -14,7 +14,7 @@ Rectangle{
         id: root
         anchors.fill: parent
         flickableDirection: Flickable.VerticalFlick
-        contentHeight: control.height
+        contentHeight: control.height+60
 
         Column {
             id: control
@@ -195,6 +195,54 @@ Rectangle{
 
            MTK_HSeparator{}
 
+           MTK_Label{
+               text: "Вектор вращения"
+               anchors.left: parent.left
+               anchors.leftMargin: Style.panelsMargins*2
+               horizontalAlignment: Text.AlignLeft
+               height: Style.cardHeight
+               color: Style.currentTheme.accent
+           }
+
+           MTK_HSeparator{}
+
+           MatTableCard{
+               anchors.left: parent.left
+               anchors.right: parent.right
+               anchors.margins: Style.panelsMargins
+               model: pnp.getRotation()
+           }
+
+           MTK_HSeparator{}
+
+           MTK_Label{
+               text: "Вектор смещения"
+               anchors.left: parent.left
+               anchors.leftMargin: Style.panelsMargins*2
+               horizontalAlignment: Text.AlignLeft
+               height: Style.cardHeight
+               color: Style.currentTheme.accent
+           }
+
+           MTK_HSeparator{}
+
+           MatTableCard{
+               anchors.left: parent.left
+               anchors.right: parent.right
+               anchors.margins: Style.panelsMargins
+               model: pnp.getTranslation()
+           }
+
+           MTK_HSeparator{}
+
+           ButtonCard{
+               enabled: pnp.pnpReady
+               iconSource:"qrc:/ASSETS/icon/rotate.svg"
+               labelText:  "Антивращение"
+               onClicked: pnp.antiRotate()
+           }
+
+           MTK_HSeparator{}
         }
     }
 }
