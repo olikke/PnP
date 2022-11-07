@@ -121,15 +121,77 @@ void PnP::antiRotate()
 {
     int width=image.cols;
     int height=image.rows;
+//    cv::Mat image3;//=cv::Mat(image.cols,image.rows,image.type());
+    cv::Mat rotationMatrix;
+    cv::Rodrigues(rotation,rotationMatrix);
+    cv::Mat pos=-rotationMatrix.t()*translation;
+//   cv:: Mat A1 = (cv::Mat_<double>(4,3) <<
+//               1, 0, -width/2,
+//               0, 1, -height/2,
+//               0, 0,    0,
+//               0, 0,    1);
+
+//   // Rotation matrices around the X axis
+//           cv::Mat R = (cv::Mat_<double>(4, 4) <<
+//               rotationMatrix.at<double>(0),    rotationMatrix.at<double>(1),   rotationMatrix.at<double>(2),   0,
+//               rotationMatrix.at<double>(3),    rotationMatrix.at<double>(4),   rotationMatrix.at<double>(5),   0,
+//               rotationMatrix.at<double>(6),    rotationMatrix.at<double>(7),   rotationMatrix.at<double>(8),   0,
+//               0,          0,           0, 1);
+
+//   // Translation matrix on the Z axis
+//           cv::Mat T = (cv::Mat_<double>(4, 4) <<
+//               1, 0, 0, 0,
+//               0, 1, 0, 0,
+//               0, 0, 1, 0,
+//               0, 0, 0, 1);
+
+//   // Camera Intrisecs matrix 3D -> 2D
+//           cv::Mat A2 = cameraMatrix;
+
+//   cv::Mat transfo = A2 * (T * (R * A1));
+
+
+////    cv::
+////            warpPerspective(image,image3,transfo,image.size());
+
+////    cv::imshow("ooooo",image3);
+//    return;
+
+
+
+    enum doLike{
+        RealPoint,  //
+        RealPointCalc, //центральная точка, расчитанная по translation
+        CentralPoint //центральная точка QPoint(imgPoints(0,0),imgPoints(1,0)) m_pointNUmb==0
+    };
+
+    cv::circle(image,cv::Point(imgPoints.at<double>(0,0),imgPoints.at<double>(1,0)),5,cv::Scalar(255),2);
+
+
+    //calculate central point by transationMatrix
+    double leftShift=translation.at<double>(0)/translation.at<double>(2)*cameraMatrix.at<double>(0);
+    double upShift=translation.at<double>(1)/translation.at<double>(2)*cameraMatrix.at<double>(4);
+    int variant=doLike::RealPoint;
+
+
     //координаты новых углов трапеции найдём через QTransform
     //QTransform расчитывается относительно точки (0,0). Не всегда очевидно:
     //для нас центральная точка - это QPoint(imgPoints(0,0),imgPoints(1,0)) m_pointNUmb==0
     QTransform transform=QTransform();
-    transform.translate(imgPoints.at<double>(0,0),imgPoints.at<double>(1,0));
-    transform.rotate(qRadiansToDegrees(rotation.at<double>(0)),Qt::XAxis);
-    transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
-    transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
-    transform.translate(-imgPoints.at<double>(0,0),-imgPoints.at<double>(1,0));
+    switch (variant) {
+    case RealPoint:  transform.translate(width/2-imgPoints.at<double>(0,0),height/2-imgPoints.at<double>(1,0)); break;
+    case RealPointCalc: transform.translate(-leftShift,-upShift); break;
+    case CentralPoint: transform.translate(-width/2,-height/2);break;
+    }
+   transform.rotate(qRadiansToDegrees(-rotation.at<double>(1)),Qt::XAxis);
+////    transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
+////    transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
+
+//    switch (variant) {
+//    case RealPoint:  transform.translate(/*-width/2*/+imgPoints.at<double>(0,0),/*-height/2*/+imgPoints.at<double>(1,0)); break;
+//    case RealPointCalc: transform.translate(+leftShift,+upShift); break;
+//    case CentralPoint: transform.translate(width/2,height/2);break;
+//    }
     QRect srcRect=QRect(0,0,width,height);
     QPolygon polygon=transform.mapToPolygon(srcRect);
     //само преобразование через матрицу гомографии
@@ -146,6 +208,8 @@ void PnP::antiRotate()
     cv::Mat homo=cv::findHomography(src,dst,CV_RANSAC,5.);
     cv::Mat image2;
     cv::warpPerspective(image,image2,homo,cv::Size());
+    cv::line(image2,cv::Point(0,height/2),cv::Point(width,height/2),cv::Scalar(255));
+    cv::line(image2,cv::Point(width/2,0),cv::Point(width/2,height),cv::Scalar(255));
     cv::imshow("ooooo",image2);
 }
 

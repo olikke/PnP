@@ -50,7 +50,7 @@ ApplicationWindow {
             }
 
             Tabbutton {
-                text: "Позиционирование по доске"
+                text: "Позиционирование"
             }
 
             Tabbutton {
