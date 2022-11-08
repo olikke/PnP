@@ -6,6 +6,7 @@
 #include <QtMath>
 #include <QTransform>
 #include <QPolygon>
+#include <QDateTime>
 #include <opencv2/opencv.hpp>
 #include "matModel.h"
 #include "appconfigMini.h"
@@ -48,6 +49,14 @@ public:
 
     Q_INVOKABLE MatModel* getTranslation() {return transModel;} //модель итоговой матрицы переноса
 
+    Q_PROPERTY(int error READ getError WRITE setError NOTIFY errorChanged) //ошибка вычисления пикселя
+    bool getError() {return m_error;}
+    void setError(int val) {m_error=val;}
+
+    Q_INVOKABLE MatModel* getRotationErr() {return rotModelErr;} // модель итоговой матрицы поворота
+
+    Q_INVOKABLE MatModel* getTranslationErr() {return transModelErr;} //модель итоговой матрицы переноса
+
     Q_INVOKABLE void antiRotate();  //восстановление изображения по матрице поворота (для оценки результата)
 signals:
     void newFrame(const cv::Mat frame);
@@ -58,6 +67,7 @@ signals:
     void clearAll();
     void readyChanged();
     void pnpReadyChanged();
+    void errorChanged();
 public slots:
     void squareSizeChanged(int value);
 private:
@@ -68,12 +78,17 @@ private:
     cv::Mat objPoints;
     cv::Mat rotation;
     cv::Mat translation;
+    cv::Mat rotationErr;
+    cv::Mat translationErr;
     MatModel* cameraModel;
     MatModel* distModel;
     MatModel* imgModel;
     MatModel* objModel;
     MatModel* rotModel;
     MatModel* transModel;
+    MatModel* rotModelErr;
+    MatModel* transModelErr;
+    std::vector<cv::Point3d> objVector;
     cv::Mat image;
     int m_radius=0;
     void findChessboardCorners();
@@ -83,5 +98,6 @@ private:
     void calcObjPoint();
     bool m_ready=false;
     bool m_pnpReady=false;
+    int m_error=1;
     void clearCameraMatrix();
 };

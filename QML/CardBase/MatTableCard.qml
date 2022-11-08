@@ -5,8 +5,12 @@ import "qrc:/QML"
 
 Column{
     height: implicitHeight
+    property bool single: true
+
+    property var calcValue
 
     Rectangle{
+        visible: single
         anchors.left: parent.left
         anchors.right: parent.right
         height: (Style.cardHeight-Style.btnHeight)/2
@@ -31,12 +35,13 @@ Column{
             radius: Style.unitRadius/2
             MTK_Label{
                 anchors.fill: parent
-                text: display.toFixed(3)
+                text: calcValue? calcValue(display).toFixed(3) : display.toFixed(3)
             }
         }
     }
 
     Rectangle{
+        visible: single
         anchors.left: parent.left
         anchors.right: parent.right
         height: (Style.cardHeight-Style.btnHeight)/2

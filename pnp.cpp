@@ -1,4 +1,10 @@
 #include "pnp.h"
+//https://stackoverflow-com.translate.goog/questions/45458665/get-correct-rvec-and-tvec-for-camera-pose-estimation-from-solvpnp-function-in-op?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
+//https://docs.opencv.org/4.x/d9/dab/tutorial_homography.html
+//https://gist-github-com.translate.goog/dbcesar/421c4c291b229615cc6a?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
+//https://gist.github.com/dbcesar/421c4c291b229615cc6a
+//https://www.guivi.one/2019/11/19/projecting-point-to-world-coordinate/
+//opencv ProjectPoints
 
 PnP::PnP(AppConfigMini* appConfig,QObject *parent) :
     QObject(parent),
@@ -9,13 +15,18 @@ PnP::PnP(AppConfigMini* appConfig,QObject *parent) :
     objPoints(cv::Mat(3,5,CV_64FC1)),
     rotation(cv::Mat(1,3,CV_64FC1)),
     translation(cv::Mat(1,3,CV_64FC1)),
+    rotationErr(cv::Mat(1,3,CV_64FC1)),
+    translationErr(cv::Mat(1,3,CV_64FC1)),
     cameraModel(new MatModel(&cameraMatrix,this)),
     distModel(new MatModel(&distMatrix,this)),
     imgModel(new MatModel(&imgPoints,this)),
     objModel(new MatModel(&objPoints,this)),
     rotModel(new MatModel(&rotation,this)),
-    transModel(new MatModel(&translation,this))
+    transModel(new MatModel(&translation,this)),
+    rotModelErr(new MatModel(&rotationErr,this)),
+    transModelErr(new MatModel(&translationErr,this))
 {
+    qsrand(static_cast<unsigned int>(QDateTime::currentMSecsSinceEpoch()));
     imgPoints=cv::Mat::zeros(imgPoints.rows,imgPoints.cols,imgPoints.type());
     imgModel->update();
     clearCameraMatrix();
@@ -67,7 +78,7 @@ void PnP::findPoint(QPointF point)
         return;
     }
     imgPoints.at<double>(0,m_pointNumb)=static_cast<double>(corners.at<cv::Vec2f>(numb)[0]);
-    imgPoints.at<double>(1,m_pointNumb)=static_cast<double>(corners.at<cv::Vec2f>(numb)[1]);    
+    imgPoints.at<double>(1,m_pointNumb)=static_cast<double>(corners.at<cv::Vec2f>(numb)[1]);
     emit paintTarget(m_pointNumb,QPointF(imgPoints.at<double>(0,m_pointNumb),
                                          imgPoints.at<double>(1,m_pointNumb)));
     imgModel->update();
@@ -91,9 +102,7 @@ void PnP::changePointNumb(bool incNumb)
 
 void PnP::start()
 {
-    //cv::Mat rotation;
-   // cv::Mat translation;
-    std::vector<cv::Point3d> objVector;
+objVector.clear();
     for (int i=0; i<objPoints.cols; i++) {
         objVector.push_back(cv::Point3d(objPoints.at<double>(0,i),objPoints.at<double>(1,i),objPoints.at<double>(2,i)));
     }
@@ -105,7 +114,6 @@ void PnP::start()
         emit pnpReadyChanged();
         return;
     }
-    qDebug()<<rotation.type()<<translation.type()<<cameraMatrix.type();
     std::cout << "solvePNP Rotation Vector: " << rotation << std::endl;
     std::cout << "solvePNP TranslationVector: " << translation << std::endl;
     cv::Mat rotationMatrix;
@@ -115,49 +123,31 @@ void PnP::start()
     transModel->update();
     m_pnpReady=true;
     emit pnpReadyChanged();
+    //accuracy estimate - оценка точности
+    qDebug()<<m_error;
+    std::vector<cv::Point2f>imgVector2;
+    for (int i=0; i<imgPoints.cols; i++){
+        double xx=qrand()%2==0? -m_error: m_error;
+        double yy=qrand()%2==0? -m_error: m_error;
+                qDebug()<<xx<<yy;
+        xx+=imgPoints.at<double>(0,i);
+        yy+=imgPoints.at<double>(1,i);
+
+        imgVector2.push_back(cv::Point2d(xx,yy));
+    }
+    std::cout<<"1"<<imgVector<<std::endl;
+   std::cout<<"2"<<imgVector2<<std::endl;
+    cv::solvePnP(objVector,imgVector2,cameraMatrix,distMatrix,rotationErr,translationErr);
+ //   rotationErr=rotationErr-rotation;
+  //  translationErr=translationErr-translation;
+    rotModelErr->update();
+    transModelErr->update();
 }
 
 void PnP::antiRotate()
 {
     int width=image.cols;
     int height=image.rows;
-//    cv::Mat image3;//=cv::Mat(image.cols,image.rows,image.type());
-    cv::Mat rotationMatrix;
-    cv::Rodrigues(rotation,rotationMatrix);
-    cv::Mat pos=-rotationMatrix.t()*translation;
-//   cv:: Mat A1 = (cv::Mat_<double>(4,3) <<
-//               1, 0, -width/2,
-//               0, 1, -height/2,
-//               0, 0,    0,
-//               0, 0,    1);
-
-//   // Rotation matrices around the X axis
-//           cv::Mat R = (cv::Mat_<double>(4, 4) <<
-//               rotationMatrix.at<double>(0),    rotationMatrix.at<double>(1),   rotationMatrix.at<double>(2),   0,
-//               rotationMatrix.at<double>(3),    rotationMatrix.at<double>(4),   rotationMatrix.at<double>(5),   0,
-//               rotationMatrix.at<double>(6),    rotationMatrix.at<double>(7),   rotationMatrix.at<double>(8),   0,
-//               0,          0,           0, 1);
-
-//   // Translation matrix on the Z axis
-//           cv::Mat T = (cv::Mat_<double>(4, 4) <<
-//               1, 0, 0, 0,
-//               0, 1, 0, 0,
-//               0, 0, 1, 0,
-//               0, 0, 0, 1);
-
-//   // Camera Intrisecs matrix 3D -> 2D
-//           cv::Mat A2 = cameraMatrix;
-
-//   cv::Mat transfo = A2 * (T * (R * A1));
-
-
-////    cv::
-////            warpPerspective(image,image3,transfo,image.size());
-
-////    cv::imshow("ooooo",image3);
-//    return;
-
-
 
     enum doLike{
         RealPoint,  //
@@ -171,7 +161,7 @@ void PnP::antiRotate()
     //calculate central point by transationMatrix
     double leftShift=translation.at<double>(0)/translation.at<double>(2)*cameraMatrix.at<double>(0);
     double upShift=translation.at<double>(1)/translation.at<double>(2)*cameraMatrix.at<double>(4);
-    int variant=doLike::RealPoint;
+    int variant=doLike::CentralPoint;
 
 
     //координаты новых углов трапеции найдём через QTransform
@@ -181,17 +171,21 @@ void PnP::antiRotate()
     switch (variant) {
     case RealPoint:  transform.translate(width/2-imgPoints.at<double>(0,0),height/2-imgPoints.at<double>(1,0)); break;
     case RealPointCalc: transform.translate(-leftShift,-upShift); break;
+    case CentralPoint: transform.translate(width/2,height/2);break;
+    }
+
+            transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
+
+   transform.rotate(qRadiansToDegrees(rotation.at<double>(0)),Qt::XAxis);
+                       transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
+
+
+
+    switch (variant) {
+    case RealPoint:  transform.translate(/*-width/2*/+imgPoints.at<double>(0,0),/*-height/2*/+imgPoints.at<double>(1,0)); break;
+    case RealPointCalc: transform.translate(+leftShift,+upShift); break;
     case CentralPoint: transform.translate(-width/2,-height/2);break;
     }
-   transform.rotate(qRadiansToDegrees(-rotation.at<double>(1)),Qt::XAxis);
-////    transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
-////    transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
-
-//    switch (variant) {
-//    case RealPoint:  transform.translate(/*-width/2*/+imgPoints.at<double>(0,0),/*-height/2*/+imgPoints.at<double>(1,0)); break;
-//    case RealPointCalc: transform.translate(+leftShift,+upShift); break;
-//    case CentralPoint: transform.translate(width/2,height/2);break;
-//    }
     QRect srcRect=QRect(0,0,width,height);
     QPolygon polygon=transform.mapToPolygon(srcRect);
     //само преобразование через матрицу гомографии
