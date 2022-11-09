@@ -58,6 +58,11 @@ public:
     Q_INVOKABLE MatModel* getTranslationErr() {return transModelErr;} //модель итоговой матрицы переноса
 
     Q_INVOKABLE void antiRotate();  //восстановление изображения по матрице поворота (для оценки результата)
+
+    Q_INVOKABLE void setX(int val) {m_x=val;}
+    Q_INVOKABLE void setY(int val) {m_y=val;}
+
+
 signals:
     void newFrame(const cv::Mat frame);
     void radiusChanged(int);
@@ -100,4 +105,6 @@ private:
     bool m_pnpReady=false;
     int m_error=1;
     void clearCameraMatrix();
+    int m_x=0;
+    int m_y=0;
 };

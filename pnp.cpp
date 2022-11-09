@@ -152,7 +152,8 @@ void PnP::antiRotate()
     enum doLike{
         RealPoint,  //
         RealPointCalc, //центральная точка, расчитанная по translation
-        CentralPoint //центральная точка QPoint(imgPoints(0,0),imgPoints(1,0)) m_pointNUmb==0
+        CentralPoint, //центральная точка QPoint(imgPoints(0,0),imgPoints(1,0)) m_pointNUmb==0
+        FromQML
     };
 
     cv::circle(image,cv::Point(imgPoints.at<double>(0,0),imgPoints.at<double>(1,0)),5,cv::Scalar(255),2);
@@ -161,7 +162,10 @@ void PnP::antiRotate()
     //calculate central point by transationMatrix
     double leftShift=translation.at<double>(0)/translation.at<double>(2)*cameraMatrix.at<double>(0);
     double upShift=translation.at<double>(1)/translation.at<double>(2)*cameraMatrix.at<double>(4);
-    int variant=doLike::CentralPoint;
+    int variant=doLike::FromQML;
+
+qDebug()<<rotation.at<double>(0)<<rotation.at<double>(1)<<rotation.at<double>(2);
+qDebug()<<qRadiansToDegrees(rotation.at<double>(0))<<qRadiansToDegrees(rotation.at<double>(1))<<qRadiansToDegrees(rotation.at<double>(2));
 
 
     //координаты новых углов трапеции найдём через QTransform
@@ -169,23 +173,25 @@ void PnP::antiRotate()
     //для нас центральная точка - это QPoint(imgPoints(0,0),imgPoints(1,0)) m_pointNUmb==0
     QTransform transform=QTransform();
     switch (variant) {
-    case RealPoint:  transform.translate(width/2-imgPoints.at<double>(0,0),height/2-imgPoints.at<double>(1,0)); break;
+    case RealPoint:  transform.translate(imgPoints.at<double>(0,0),imgPoints.at<double>(1,0)); break;
     case RealPointCalc: transform.translate(-leftShift,-upShift); break;
     case CentralPoint: transform.translate(width/2,height/2);break;
-    }
+  //  case FromQML: transform.translate(m_x,m_y);break;
+    }    
 
-            transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
 
-   transform.rotate(qRadiansToDegrees(rotation.at<double>(0)),Qt::XAxis);
-                       transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
-
+         transform.rotate(qRadiansToDegrees(rotation.at<double>(0)),Qt::XAxis);
+                               transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
+                                            transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
 
 
     switch (variant) {
-    case RealPoint:  transform.translate(/*-width/2*/+imgPoints.at<double>(0,0),/*-height/2*/+imgPoints.at<double>(1,0)); break;
+    case RealPoint:  transform.translate(-imgPoints.at<double>(0,0),-imgPoints.at<double>(1,0)); break;
     case RealPointCalc: transform.translate(+leftShift,+upShift); break;
     case CentralPoint: transform.translate(-width/2,-height/2);break;
+//     case FromQML: transform.translate(-m_x,-m_y);break;
     }
+
     QRect srcRect=QRect(0,0,width,height);
     QPolygon polygon=transform.mapToPolygon(srcRect);
     //само преобразование через матрицу гомографии
@@ -202,8 +208,6 @@ void PnP::antiRotate()
     cv::Mat homo=cv::findHomography(src,dst,CV_RANSAC,5.);
     cv::Mat image2;
     cv::warpPerspective(image,image2,homo,cv::Size());
-    cv::line(image2,cv::Point(0,height/2),cv::Point(width,height/2),cv::Scalar(255));
-    cv::line(image2,cv::Point(width/2,0),cv::Point(width/2,height),cv::Scalar(255));
     cv::imshow("ooooo",image2);
 }
 
