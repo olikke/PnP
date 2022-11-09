@@ -25,6 +25,7 @@ Row {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             function reload() {
+                console.log("newImage")
                 source=""
                 source="image://plive/image"
             }

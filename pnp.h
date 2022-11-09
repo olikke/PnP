@@ -61,6 +61,9 @@ public:
 
     Q_INVOKABLE void setX(int val) {m_x=val;}
     Q_INVOKABLE void setY(int val) {m_y=val;}
+    Q_INVOKABLE void setA1(int val) {m_a1=val/10;}
+    Q_INVOKABLE void setA2(int val) {m_a2=val/10;}
+    Q_INVOKABLE void setA3(int val) {m_a3=val/10;}
 
 
 signals:
@@ -107,4 +110,8 @@ private:
     void clearCameraMatrix();
     int m_x=0;
     int m_y=0;
+    double m_a1=0.;
+    double m_a2=0.;
+    double m_a3=0.;
+
 };

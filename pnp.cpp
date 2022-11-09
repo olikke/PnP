@@ -176,20 +176,22 @@ qDebug()<<qRadiansToDegrees(rotation.at<double>(0))<<qRadiansToDegrees(rotation.
     case RealPoint:  transform.translate(imgPoints.at<double>(0,0),imgPoints.at<double>(1,0)); break;
     case RealPointCalc: transform.translate(-leftShift,-upShift); break;
     case CentralPoint: transform.translate(width/2,height/2);break;
-  //  case FromQML: transform.translate(m_x,m_y);break;
+    case FromQML: transform.translate(width/2+m_x,height/2+m_y);break;
     }    
-
-
-         transform.rotate(qRadiansToDegrees(rotation.at<double>(0)),Qt::XAxis);
-                               transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
-                                            transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
-
-
+    if (variant==FromQML) {
+        transform.rotate(m_a1,Qt::XAxis);
+        transform.rotate(m_a2,Qt::YAxis);
+        transform.rotate(m_a3,Qt::ZAxis);
+    } else {
+        transform.rotate(qRadiansToDegrees(rotation.at<double>(0)),Qt::XAxis);
+        transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
+        transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
+    }
     switch (variant) {
     case RealPoint:  transform.translate(-imgPoints.at<double>(0,0),-imgPoints.at<double>(1,0)); break;
     case RealPointCalc: transform.translate(+leftShift,+upShift); break;
     case CentralPoint: transform.translate(-width/2,-height/2);break;
-//     case FromQML: transform.translate(-m_x,-m_y);break;
+    case FromQML: transform.translate(-width/2,-height/2);break;
     }
 
     QRect srcRect=QRect(0,0,width,height);
@@ -208,7 +210,17 @@ qDebug()<<qRadiansToDegrees(rotation.at<double>(0))<<qRadiansToDegrees(rotation.
     cv::Mat homo=cv::findHomography(src,dst,CV_RANSAC,5.);
     cv::Mat image2;
     cv::warpPerspective(image,image2,homo,cv::Size());
-    cv::imshow("ooooo",image2);
+    cv::line(image2,cv::Point(0,height/2),cv::Point(width,height/2),cv::Scalar(255));
+    cv::line(image2,cv::Point(width/2,0),cv::Point(width/2,height),cv::Scalar(255));
+    for (int i=40; i<width;i+=40) {
+        cv::line(image2,cv::Point(i,0),cv::Point(i,height),cv::Scalar(0,125,125));
+    }
+    for (int i=40; i<height;i+=40) {
+        cv::line(image2,cv::Point(0,i),cv::Point(width,i),cv::Scalar(0,125,125));
+    }
+    emit newFrame(image2);
+  //  cv::resize(image2,image2,cv::Size(image2.cols,image2.rows));
+   // cv::imshow("ooooo",image2);
 }
 
 void PnP::squareSizeChanged(int value)

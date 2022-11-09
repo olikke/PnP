@@ -324,22 +324,53 @@ Rectangle{
            MTK_HSeparator{}
 
            SliderCard{
-                labelText: "Х, пикс"
-                from:-720*2
-                to: 720*2
-                value: 0
-                stepSize: 1
-                onMove: pnp.setX(value)
+               labelText: "Х, пикс"
+               from:-720*2
+               to: 720*2
+               value: 0
+               stepSize: 1
+               onMove: pnp.setX(value)
            }
 
            SliderCard{
-                labelText: "Y, пикс"
-                from: -576*2
-                to: 576*2
-                value: 0
-                stepSize: 1
-                onMove: pnp.setY(value)
+               labelText: "Y, пикс"
+               from: -576*2
+               to: 576*2
+               value: 0
+               stepSize: 1
+               onMove: pnp.setY(value)
            }
+
+           MTK_HSeparator{}
+
+           SliderCard{
+               labelText: "a1, *100"
+               from:-90*10
+               to: 90*10
+               value: 0
+               stepSize: 1
+               divider: 10
+               onMove: pnp.setA1(value)
+           }
+           SliderCard{
+               labelText: "a2, *100"
+               from:-90*10
+               to: 90*10
+               value: 0
+               divider: 10
+               stepSize: 1
+               onMove: pnp.setA2(value)
+           }
+           SliderCard{
+               labelText: "a3, *100"
+               from:-90*10
+               to: 90*10
+               value: 0
+               divider: 10
+               stepSize: 1
+               onMove: pnp.setA3(value)
+           }
+
         }
     }
 }
