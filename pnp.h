@@ -27,6 +27,8 @@ public:
 
     Q_INVOKABLE MatModel* getObjModel() {return objModel;} //координаты точек объекта в пространстве
 
+    Q_INVOKABLE MatModel* getImgModelCalc() {return imgModelCalc;} //координаты точек проекции объекта пересчитанные по результатам rvec и tvec
+
     Q_INVOKABLE void openImage(QString url);
 
     Q_INVOKABLE void findPoint(QPointF point);
@@ -49,21 +51,15 @@ public:
 
     Q_INVOKABLE MatModel* getTranslation() {return transModel;} //модель итоговой матрицы переноса
 
-    Q_PROPERTY(int error READ getError WRITE setError NOTIFY errorChanged) //ошибка вычисления пикселя
-    bool getError() {return m_error;}
-    void setError(int val) {m_error=val;}
-
-    Q_INVOKABLE MatModel* getRotationErr() {return rotModelErr;} // модель итоговой матрицы поворота
-
-    Q_INVOKABLE MatModel* getTranslationErr() {return transModelErr;} //модель итоговой матрицы переноса
-
     Q_INVOKABLE void antiRotate();  //восстановление изображения по матрице поворота (для оценки результата)
 
-    Q_INVOKABLE void setX(int val) {m_x=val;}
-    Q_INVOKABLE void setY(int val) {m_y=val;}
-    Q_INVOKABLE void setA1(int val) {m_a1=val/10;}
-    Q_INVOKABLE void setA2(int val) {m_a2=val/10;}
-    Q_INVOKABLE void setA3(int val) {m_a3=val/10;}
+    Q_INVOKABLE void projectPoints(); //обратное проецирование точек обьекта на изображение по результатам rvec и tvec
+
+    Q_INVOKABLE void setX(int val) {m_x=val; /*antiRotate();*/}
+    Q_INVOKABLE void setY(int val) {m_y=val;/*antiRotate();*/}
+    Q_INVOKABLE void setA1(int val) {m_a1=val/10;/*antiRotate();*/}
+    Q_INVOKABLE void setA2(int val) {m_a2=val/10;/*antiRotate();*/}
+    Q_INVOKABLE void setA3(int val) {m_a3=val/10;/*antiRotate();*/}
 
 
 signals:
@@ -86,16 +82,14 @@ private:
     cv::Mat objPoints;
     cv::Mat rotation;
     cv::Mat translation;
-    cv::Mat rotationErr;
-    cv::Mat translationErr;
+    cv::Mat imgPointsCalc;
     MatModel* cameraModel;
     MatModel* distModel;
     MatModel* imgModel;
     MatModel* objModel;
     MatModel* rotModel;
     MatModel* transModel;
-    MatModel* rotModelErr;
-    MatModel* transModelErr;
+    MatModel* imgModelCalc;
     std::vector<cv::Point3d> objVector;
     cv::Mat image;
     int m_radius=0;

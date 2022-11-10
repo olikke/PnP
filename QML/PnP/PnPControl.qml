@@ -186,21 +186,10 @@ Rectangle{
 
            MTK_HSeparator{}
 
-           SliderCard{
-                labelText: "Ошибка определения точки, пикс"
-                from: 1
-                to: 10
-                value: pnp.error
-                stepSize: 1
-                onMove: pnp.error=value
-           }
-
-           MTK_HSeparator{}
-
            ButtonCard{
                enabled: pnp.ready
                iconSource:"qrc:/ASSETS/icon/play.svg"
-               labelText:  "Запуск"
+               labelText:  "РАсчёт положения объекта"
                onClicked: pnp.start()
            }
 
@@ -217,47 +206,13 @@ Rectangle{
 
            MTK_HSeparator{}
 
-           Row{
+           MatTableCard{
+               function calc(val) {return val*180/Math.PI}
                anchors.left: parent.left
-               anchors.leftMargin: Style.panelsMargins*2
                anchors.right: parent.right
-               spacing: Style.connectionWidth
-               Column{
-                   id: caption
-                   width: 50
-                   height: parent.height
-                   MTK_Label{
-                       height: Style.btnHeight*0.8
-                       text: "Точно"
-                   }
-                   MTK_Label{
-                       height: Style.btnHeight*0.8
-                       text: "С ош."
-                   }
-               }
-
-               Column{
-                   width: parent.width-caption.width-parent.spacing
-                   height: implicitHeight
-                   MatTableCard{
-                       function calc(val) {return val*180/Math.PI}
-                       single: false
-                       anchors.left: parent.left
-                       anchors.right: parent.right
-                       anchors.margins: Style.panelsMargins
-                       model: pnp.getRotation()
-                       calcValue: calc
-                   }
-                   MatTableCard{
-                       function calc(val) {return val*180/Math.PI}
-                       single: false
-                       anchors.left: parent.left
-                       anchors.right: parent.right
-                       anchors.margins: Style.panelsMargins
-                       model: pnp.getRotationErr()
-                       calcValue: calc
-                   }
-               }
+               anchors.margins: Style.panelsMargins
+               model: pnp.getRotation()
+               calcValue: calc
            }
 
            MTK_HSeparator{}
@@ -273,43 +228,29 @@ Rectangle{
 
            MTK_HSeparator{}
 
-           Row{
+           MatTableCard{
                anchors.left: parent.left
-               anchors.leftMargin: Style.panelsMargins*2
                anchors.right: parent.right
-               spacing: Style.connectionWidth
-               Column{
-                   id: caption2
-                   width: 50
-                   height: parent.height
-                   MTK_Label{
-                       height: Style.btnHeight*0.8
-                       text: "Точно"
-                   }
-                   MTK_Label{
-                       height: Style.btnHeight*0.8
-                       text: "С ош."
-                   }
-               }
+               anchors.margins: Style.panelsMargins
+               model: pnp.getTranslation()
+           }
 
-               Column{
-                   width: parent.width-caption2.width-parent.spacing
-                   height: implicitHeight
-                   MatTableCard{
-                       single: false
-                       anchors.left: parent.left
-                       anchors.right: parent.right
-                       anchors.margins: Style.panelsMargins
-                       model: pnp.getTranslation()
-                   }
-                   MatTableCard{
-                       single: false
-                       anchors.left: parent.left
-                       anchors.right: parent.right
-                       anchors.margins: Style.panelsMargins
-                       model: pnp.getTranslationErr()
-                   }
-               }
+           MTK_HSeparator{}
+
+           ButtonCard{
+               enabled: pnp.ready
+               iconSource:"qrc:/ASSETS/icon/play.svg"
+               labelText:  "Обратное проецирование"
+               onClicked: pnp.projectPoints()
+           }
+
+           MTK_HSeparator{}
+
+           MatTableCard{
+               anchors.left: parent.left
+               anchors.right: parent.right
+               anchors.margins: Style.panelsMargins
+               model: pnp.getImgModelCalc()
            }
 
            MTK_HSeparator{}

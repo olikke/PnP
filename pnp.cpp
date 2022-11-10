@@ -6,6 +6,9 @@
 //https://www.guivi.one/2019/11/19/projecting-point-to-world-coordinate/
 //opencv ProjectPoints
 
+//https://stackoverflow-com.translate.goog/questions/12299870/computing-x-y-coordinate-3d-from-image-point?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
+//https://stackoverflow.com/questions/12299870/computing-x-y-coordinate-3d-from-image-point
+
 PnP::PnP(AppConfigMini* appConfig,QObject *parent) :
     QObject(parent),
     m_appConfig(appConfig),
@@ -15,20 +18,20 @@ PnP::PnP(AppConfigMini* appConfig,QObject *parent) :
     objPoints(cv::Mat(3,5,CV_64FC1)),
     rotation(cv::Mat(1,3,CV_64FC1)),
     translation(cv::Mat(1,3,CV_64FC1)),
-    rotationErr(cv::Mat(1,3,CV_64FC1)),
-    translationErr(cv::Mat(1,3,CV_64FC1)),
+    imgPointsCalc(cv::Mat(2,5,CV_64FC1)),
     cameraModel(new MatModel(&cameraMatrix,this)),
     distModel(new MatModel(&distMatrix,this)),
     imgModel(new MatModel(&imgPoints,this)),
     objModel(new MatModel(&objPoints,this)),
     rotModel(new MatModel(&rotation,this)),
     transModel(new MatModel(&translation,this)),
-    rotModelErr(new MatModel(&rotationErr,this)),
-    transModelErr(new MatModel(&translationErr,this))
+    imgModelCalc(new MatModel(&imgPointsCalc,this))
 {
     qsrand(static_cast<unsigned int>(QDateTime::currentMSecsSinceEpoch()));
     imgPoints=cv::Mat::zeros(imgPoints.rows,imgPoints.cols,imgPoints.type());
+    imgPointsCalc=cv::Mat::zeros(imgPointsCalc.rows,imgPointsCalc.cols,imgPointsCalc.type());
     imgModel->update();
+    imgModelCalc->update();
     clearCameraMatrix();
     clearImgMatrix();
     m_radius=appConfig->getSquareSize();
@@ -102,7 +105,7 @@ void PnP::changePointNumb(bool incNumb)
 
 void PnP::start()
 {
-objVector.clear();
+    objVector.clear();
     for (int i=0; i<objPoints.cols; i++) {
         objVector.push_back(cv::Point3d(objPoints.at<double>(0,i),objPoints.at<double>(1,i),objPoints.at<double>(2,i)));
     }
@@ -123,29 +126,20 @@ objVector.clear();
     transModel->update();
     m_pnpReady=true;
     emit pnpReadyChanged();
-    //accuracy estimate - оценка точности
-    qDebug()<<m_error;
-    std::vector<cv::Point2f>imgVector2;
-    for (int i=0; i<imgPoints.cols; i++){
-        double xx=qrand()%2==0? -m_error: m_error;
-        double yy=qrand()%2==0? -m_error: m_error;
-                qDebug()<<xx<<yy;
-        xx+=imgPoints.at<double>(0,i);
-        yy+=imgPoints.at<double>(1,i);
 
-        imgVector2.push_back(cv::Point2d(xx,yy));
-    }
-    std::cout<<"1"<<imgVector<<std::endl;
-   std::cout<<"2"<<imgVector2<<std::endl;
-    cv::solvePnP(objVector,imgVector2,cameraMatrix,distMatrix,rotationErr,translationErr);
- //   rotationErr=rotationErr-rotation;
-  //  translationErr=translationErr-translation;
-    rotModelErr->update();
-    transModelErr->update();
+
+
+
+
+
+    return;
 }
 
 void PnP::antiRotate()
 {
+    projectPoints();
+    return;
+
     int width=image.cols;
     int height=image.rows;
 
@@ -210,17 +204,38 @@ qDebug()<<qRadiansToDegrees(rotation.at<double>(0))<<qRadiansToDegrees(rotation.
     cv::Mat homo=cv::findHomography(src,dst,CV_RANSAC,5.);
     cv::Mat image2;
     cv::warpPerspective(image,image2,homo,cv::Size());
-    cv::line(image2,cv::Point(0,height/2),cv::Point(width,height/2),cv::Scalar(255));
-    cv::line(image2,cv::Point(width/2,0),cv::Point(width/2,height),cv::Scalar(255));
+
     for (int i=40; i<width;i+=40) {
         cv::line(image2,cv::Point(i,0),cv::Point(i,height),cv::Scalar(0,125,125));
     }
     for (int i=40; i<height;i+=40) {
         cv::line(image2,cv::Point(0,i),cv::Point(width,i),cv::Scalar(0,125,125));
     }
+    cv::line(image2,cv::Point(0,height/2),cv::Point(width,height/2),cv::Scalar(255));
+    cv::line(image2,cv::Point(width/2,0),cv::Point(width/2,height),cv::Scalar(255));
     emit newFrame(image2);
   //  cv::resize(image2,image2,cv::Size(image2.cols,image2.rows));
-   // cv::imshow("ooooo",image2);
+    // cv::imshow("ooooo",image2);
+}
+
+void PnP::projectPoints()
+{
+    std::vector<cv::Point2d> projPoints;
+    cv::projectPoints(objVector,rotation,translation,cameraMatrix,distMatrix,projPoints);
+
+    for (size_t i=0; i<projPoints.size(); i++) {
+        imgPointsCalc.at<double>(0,i)=projPoints.at(i).x;
+        imgPointsCalc.at<double>(1,i)=projPoints.at(i).y;
+    }
+    imgModelCalc->update();
+    cv::Mat rotationMatrix;
+    cv::Rodrigues(rotation,rotationMatrix);
+
+    std::cout<<cameraMatrix*(rotationMatrix*cv::Mat(objVector.at(0))-translation)<<std::endl;
+    cv::Mat centerObj=(cv::Mat_<double>(3,1)<<imgPoints.at<double>(0,0),imgPoints.at<double>(1,0),translation.at<double>(1));
+   std::cout<<centerObj<<std::endl;
+    std::cout<<rotationMatrix.inv()*(cameraMatrix.inv()*centerObj-translation)<<std::endl;
+
 }
 
 void PnP::squareSizeChanged(int value)
