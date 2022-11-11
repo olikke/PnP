@@ -126,20 +126,10 @@ void PnP::start()
     transModel->update();
     m_pnpReady=true;
     emit pnpReadyChanged();
-
-
-
-
-
-
-    return;
 }
 
 void PnP::antiRotate()
 {
-    projectPoints();
-    return;
-
     int width=image.cols;
     int height=image.rows;
 
@@ -158,9 +148,6 @@ void PnP::antiRotate()
     double upShift=translation.at<double>(1)/translation.at<double>(2)*cameraMatrix.at<double>(4);
     int variant=doLike::FromQML;
 
-qDebug()<<rotation.at<double>(0)<<rotation.at<double>(1)<<rotation.at<double>(2);
-qDebug()<<qRadiansToDegrees(rotation.at<double>(0))<<qRadiansToDegrees(rotation.at<double>(1))<<qRadiansToDegrees(rotation.at<double>(2));
-
 
     //координаты новых углов трапеции найдём через QTransform
     //QTransform расчитывается относительно точки (0,0). Не всегда очевидно:
@@ -170,7 +157,7 @@ qDebug()<<qRadiansToDegrees(rotation.at<double>(0))<<qRadiansToDegrees(rotation.
     case RealPoint:  transform.translate(imgPoints.at<double>(0,0),imgPoints.at<double>(1,0)); break;
     case RealPointCalc: transform.translate(-leftShift,-upShift); break;
     case CentralPoint: transform.translate(width/2,height/2);break;
-    case FromQML: transform.translate(width/2+m_x,height/2+m_y);break;
+    case FromQML: transform.translate(m_x,m_y);break;
     }    
     if (variant==FromQML) {
         transform.rotate(m_a1,Qt::XAxis);
@@ -179,29 +166,35 @@ qDebug()<<qRadiansToDegrees(rotation.at<double>(0))<<qRadiansToDegrees(rotation.
     } else {
         transform.rotate(qRadiansToDegrees(rotation.at<double>(0)),Qt::XAxis);
         transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
-        transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
+       transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
     }
     switch (variant) {
     case RealPoint:  transform.translate(-imgPoints.at<double>(0,0),-imgPoints.at<double>(1,0)); break;
     case RealPointCalc: transform.translate(+leftShift,+upShift); break;
     case CentralPoint: transform.translate(-width/2,-height/2);break;
-    case FromQML: transform.translate(-width/2,-height/2);break;
+    case FromQML: transform.translate(m_x2,m_y2);break;
     }
 
     QRect srcRect=QRect(0,0,width,height);
     QPolygon polygon=transform.mapToPolygon(srcRect);
     //само преобразование через матрицу гомографии
     std::vector<cv::Point2f> src;
-    src.push_back(cv::Point2f(0,0));
-    src.push_back(cv::Point2f(width,0));
-    src.push_back(cv::Point2f(width,height));
-    src.push_back(cv::Point2f(0,height));
     std::vector<cv::Point2f> dst;
-    dst.push_back(cv::Point2f(polygon.point(0).x(),polygon.point(0).y()));
-    dst.push_back(cv::Point2f(polygon.point(1).x(),polygon.point(1).y()));
-    dst.push_back(cv::Point2f(polygon.point(2).x(),polygon.point(2).y()));
-    dst.push_back(cv::Point2f(polygon.point(3).x(),polygon.point(3).y()));
+    //attention!!!!
+    // преобразование из кривой плоскости в прямую, так что не перепутай src и dst!!!!
+
+    dst.push_back(cv::Point2f(0,0));
+    dst.push_back(cv::Point2f(width,0));
+    dst.push_back(cv::Point2f(width,height));
+    dst.push_back(cv::Point2f(0,height));
+
+    src.push_back(cv::Point2f(polygon.point(0).x(),polygon.point(0).y()));
+    src.push_back(cv::Point2f(polygon.point(1).x(),polygon.point(1).y()));
+    src.push_back(cv::Point2f(polygon.point(2).x(),polygon.point(2).y()));
+    src.push_back(cv::Point2f(polygon.point(3).x(),polygon.point(3).y()));
     cv::Mat homo=cv::findHomography(src,dst,CV_RANSAC,5.);
+
+    std::cout<<"homo"<<homo<<std::endl;
     cv::Mat image2;
     cv::warpPerspective(image,image2,homo,cv::Size());
 

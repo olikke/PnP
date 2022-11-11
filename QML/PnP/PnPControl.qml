@@ -312,6 +312,28 @@ Rectangle{
                onMove: pnp.setA3(value)
            }
 
+           MTK_HSeparator{}
+
+           SliderCard{
+               labelText: "Х2, пикс"
+               from:-720*2
+               to: 720*2
+               value: 0
+               stepSize: 1
+               onMove: pnp.setX2(value)
+           }
+
+           SliderCard{
+               labelText: "Y2, пикс"
+               from: -576*2
+               to: 576*2
+               value: 0
+               stepSize: 1
+               onMove: pnp.setY2(value)
+           }
+
+           MTK_HSeparator{}
+
         }
     }
 }

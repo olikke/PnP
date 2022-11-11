@@ -29,7 +29,7 @@ Task calc(const Task &task)
     if (newTask.success) {
         //olikke cv::Size(11,11) зона поиска - изменение/производительность/точность
         // cv::Size(-1,-1) мёртвая зона
-        cv::cornerSubPix(frame,newTask.corners,cv::Size(11,11),cv::Size(-1,-1),newTask.criteria);
+        cv::cornerSubPix(frame,newTask.corners,cv::Size(9,9),cv::Size(-1,-1),newTask.criteria);
         cv::cvtColor(frame,frame,CV_GRAY2BGR);
         cv::drawChessboardCorners(frame,newTask.boardSize,newTask.corners,newTask.success);
         for (int i=0; i<newTask.boardSize.height; i++)

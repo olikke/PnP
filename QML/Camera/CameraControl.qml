@@ -18,7 +18,7 @@ Rectangle{
         onAccepted: {
             folderBack.url=fileUrl+"/"
             folderModel.folder= folderBack.url
-            lbl1.text=folderBack.url
+            lbl1.labelText=folderBack.url
             grabber.setUrl(folderModel.folder)
         }
     }
@@ -30,6 +30,7 @@ Rectangle{
         spacing: Style.connectionWidth
 
         ButtonCard{
+            id: lbl1
             iconSource:"qrc:/ASSETS/icon/folder.svg"
             labelText: "Выбрать папку для сохранения"
             onClicked: openDialog.open()
@@ -66,7 +67,7 @@ Rectangle{
                 Rectangle{
                     id: photoFrame
                     width: grid.width/grid.columns-grid.spacing*(grid.columns-1)
-                    height: width*frameHeight/frameWidth
+                    height: width*appConfig.frameHeight/appConfig.frameWidth
                     color: Style.currentTheme.primary
 
                     Image {

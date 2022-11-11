@@ -55,11 +55,13 @@ public:
 
     Q_INVOKABLE void projectPoints(); //обратное проецирование точек обьекта на изображение по результатам rvec и tvec
 
-    Q_INVOKABLE void setX(int val) {m_x=val; /*antiRotate();*/}
-    Q_INVOKABLE void setY(int val) {m_y=val;/*antiRotate();*/}
-    Q_INVOKABLE void setA1(int val) {m_a1=val/10;/*antiRotate();*/}
-    Q_INVOKABLE void setA2(int val) {m_a2=val/10;/*antiRotate();*/}
-    Q_INVOKABLE void setA3(int val) {m_a3=val/10;/*antiRotate();*/}
+    Q_INVOKABLE void setX(int val) {m_x=val; antiRotate();}
+    Q_INVOKABLE void setY(int val) {m_y=val;antiRotate();}
+    Q_INVOKABLE void setA1(int val) {m_a1=val/10;antiRotate();}
+    Q_INVOKABLE void setA2(int val) {m_a2=val/10;antiRotate();}
+    Q_INVOKABLE void setA3(int val) {m_a3=val/10;antiRotate();}
+    Q_INVOKABLE void setX2(int val) {m_x2=val; antiRotate();}
+    Q_INVOKABLE void setY2(int val) {m_y2=val;antiRotate();}
 
 
 signals:
@@ -107,5 +109,7 @@ private:
     double m_a1=0.;
     double m_a2=0.;
     double m_a3=0.;
+    int m_x2=0;
+    int m_y2=0;
 
 };
