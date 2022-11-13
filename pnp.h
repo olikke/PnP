@@ -63,6 +63,8 @@ public:
     Q_INVOKABLE void setX2(int val) {m_x2=val; antiRotate();}
     Q_INVOKABLE void setY2(int val) {m_y2=val;antiRotate();}
 
+    Q_INVOKABLE void undistort();
+
 
 signals:
     void newFrame(const cv::Mat frame);

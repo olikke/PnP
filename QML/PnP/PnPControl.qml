@@ -334,6 +334,12 @@ Rectangle{
 
            MTK_HSeparator{}
 
+           ButtonCard{
+               iconSource:"qrc:/ASSETS/icon/folder.svg"
+               labelText:  "Выправить"
+               onClicked: pnp.undistort()
+           }
+
         }
     }
 }

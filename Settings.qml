@@ -34,7 +34,7 @@ Rectangle{
 
             SliderCard{
                 labelText: "Ширина кадра, пикс"
-                from: 720
+                from: 640
                 to: 2048
                 value: appConfig.frameWidth
                 stepSize: 4
@@ -43,7 +43,7 @@ Rectangle{
 
             SliderCard{
                 labelText: "Высота кадра, пикс"
-                from: 576
+                from: 480
                 to: 2048
                 value: appConfig.frameHeight
                 stepSize: 4

@@ -231,6 +231,24 @@ void PnP::projectPoints()
 
 }
 
+void PnP::undistort()
+{
+    cv::Mat und;
+//    cv::Mat newCameraMatrix=cv::getOptimalNewCameraMatrix(cameraMatrix,distMatrix,image.size(),1,image.size());
+//    cv::initUndistortRectifyMap(cameraMatrix, distMatrix, nullptr, newCameraMatrix, image.size(), 5)
+//    image = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
+
+//    x, y, w, h = roi
+//    image = image[y:y + h, x:x + w]
+  //  cv::undistortPoints(image,und,cameraMatrix,distMatrix);
+    std::cout<<cameraMatrix<<std::endl;
+    std::cout<<distMatrix<<std::endl;
+    cv::Mat newCameraMatrix=cv::getOptimalNewCameraMatrix(cameraMatrix,distMatrix,image.size(),1,image.size());
+    cv::undistort(image,und,cameraMatrix,distMatrix,newCameraMatrix);
+    cv::imshow("ooo",und);
+
+}
+
 void PnP::squareSizeChanged(int value)
 {
     m_radius=value;
