@@ -9,6 +9,8 @@ import "qrc:/QML"
 Rectangle{
     id: root
     color: Style.currentTheme.primary
+    
+    signal openMatrixDialog()
 
     FileDialog {
         id: openDialog

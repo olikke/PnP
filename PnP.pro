@@ -25,7 +25,8 @@ SOURCES += \
     folderBackend.cpp \
     calibrate.cpp \
     matModel.cpp \
-    pnp.cpp
+    pnp.cpp \
+    matModel2.cpp
 
 RESOURCES += qml.qrc
 
@@ -61,4 +62,5 @@ HEADERS += \
     global.h \
     calibrate.h \
     matModel.h \
-    pnp.h
+    pnp.h \
+    matModel2.h

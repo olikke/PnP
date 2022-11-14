@@ -19,7 +19,9 @@ Rectangle {
         onClicked: {
             open=!open
             openTools(open)
+            rotation=open? 90: 0
         }
+        Behavior on rotation{ NumberAnimation {duration: Style.animationDuration*2}}
     }
 
     MTK_IconButton{

@@ -194,7 +194,6 @@ void PnP::antiRotate()
     src.push_back(cv::Point2f(polygon.point(3).x(),polygon.point(3).y()));
     cv::Mat homo=cv::findHomography(src,dst,CV_RANSAC,5.);
 
-    std::cout<<"homo"<<homo<<std::endl;
     cv::Mat image2;
     cv::warpPerspective(image,image2,homo,cv::Size());
 
@@ -233,19 +232,20 @@ void PnP::projectPoints()
 
 void PnP::undistort()
 {
-    cv::Mat und;
-//    cv::Mat newCameraMatrix=cv::getOptimalNewCameraMatrix(cameraMatrix,distMatrix,image.size(),1,image.size());
-//    cv::initUndistortRectifyMap(cameraMatrix, distMatrix, nullptr, newCameraMatrix, image.size(), 5)
-//    image = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
+    cv::Mat und1;
+    cv::Mat newCameraMatrix1=cv::getOptimalNewCameraMatrix(cameraMatrix,distMatrix,image.size(),0,image.size());
+    cv::undistort(image,und1,cameraMatrix,distMatrix,newCameraMatrix1);
+    cv::imshow("ooo",und1);
 
-//    x, y, w, h = roi
-//    image = image[y:y + h, x:x + w]
-  //  cv::undistortPoints(image,und,cameraMatrix,distMatrix);
-    std::cout<<cameraMatrix<<std::endl;
-    std::cout<<distMatrix<<std::endl;
-    cv::Mat newCameraMatrix=cv::getOptimalNewCameraMatrix(cameraMatrix,distMatrix,image.size(),1,image.size());
-    cv::undistort(image,und,cameraMatrix,distMatrix,newCameraMatrix);
-    cv::imshow("ooo",und);
+    cv::Mat und2;
+    cv::Mat newCameraMatrix2=cv::getOptimalNewCameraMatrix(cameraMatrix,distMatrix,image.size(),0.5,image.size());
+    cv::undistort(image,und2,cameraMatrix,distMatrix,newCameraMatrix2);
+    cv::imshow("ooo2",und2);
+
+    cv::Mat und3;
+    cv::Mat newCameraMatrix3=cv::getOptimalNewCameraMatrix(cameraMatrix,distMatrix,image.size(),1,image.size());
+    cv::undistort(image,und3,cameraMatrix,distMatrix,newCameraMatrix3);
+    cv::imshow("ooo3",und3);
 
 }
 

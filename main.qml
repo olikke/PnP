@@ -52,10 +52,6 @@ ApplicationWindow {
             Tabbutton {
                 text: "Позиционирование"
             }
-
-            Tabbutton {
-                text: "Устранение искажений"
-            }
         }
     }
 

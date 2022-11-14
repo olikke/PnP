@@ -106,7 +106,7 @@ Rectangle{
             SliderCard{
                 labelText: "Количество итерраций"
                 from: 10
-                to: 100
+                to: 200
                 value: appConfig.iterations
                 stepSize: 1
                 onMove: appConfig.iterations=value
