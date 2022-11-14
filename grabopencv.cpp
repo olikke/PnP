@@ -1,7 +1,9 @@
 #include "grabopencv.h"
 
-GrabOpenCV::GrabOpenCV(QObject *parent, int _width, int _height):
+GrabOpenCV::GrabOpenCV(MatrixManager* matrixManager, QObject *parent, int _width, int _height):
     QObject(parent),
+    cameraMatrix(matrixManager->getCameraMatrix()),
+    distMatrix(matrixManager->getDistMatrix()),
     timer(new QTimer(this)),
     m_width(_width),
     m_height(_height)
@@ -52,5 +54,10 @@ void GrabOpenCV::timeOut()
         return;
     }
     cv::cvtColor(frame,frame,CV_BGR2GRAY);
-    emit newFrame(frame);
+    if (m_undistort) {
+        cv::Mat und;
+        cv::Mat newCameraMatrix1=cv::getOptimalNewCameraMatrix(*cameraMatrix,*distMatrix,frame.size(),1,frame.size());
+        cv::undistort(frame,und,*cameraMatrix,*distMatrix,newCameraMatrix1);
+        emit newFrame(und);
+    } else   emit newFrame(frame);
 }

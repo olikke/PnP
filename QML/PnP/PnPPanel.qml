@@ -71,9 +71,7 @@ Row {
         id: control
         width: Style.sidePanel
         height: parent.height
-
         onOpenImageDialog: openImage.open()
-        onOpenMatrixDialog: openXML.open()
     }
 
     FileDialog {
@@ -84,16 +82,5 @@ Row {
            pnp.openImage(fileUrl)
         }
     }
-
-    FileDialog {
-        id: openXML
-        title: "Открыть результаты калибровки камеры"
-        nameFilters: [ "XML files (*.xml)"  ]
-        onAccepted: {
-            pnp.openMatrix(fileUrl)
-        }
-    }
-
-
 }
 

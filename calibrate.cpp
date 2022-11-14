@@ -1,12 +1,12 @@
 ﻿#include "calibrate.h"
 
-Calibrate::Calibrate(AppConfigMini* appConfig,QObject *parent) :
+Calibrate::Calibrate(AppConfigMini* appConfig,MatrixManager* matManager, QObject *parent) :
     QObject(parent),
     m_appConfig(appConfig),
-    cameraMatrix(cv::Mat(3,3,CV_64FC1)),
-    cameraModel(new MatModel(&cameraMatrix,this)),
-    distMatrix(cv::Mat(1,5,CV_64FC1)),
-    distModel(new MatModel(&distMatrix,this)),
+    cameraMatrix(matManager->getCameraMatrix()),
+    cameraModel(matManager->getCameraModel()),
+    distMatrix(matManager->getDistMatrix()),
+    distModel(matManager->getDistModel()),
     tempDir(QCoreApplication::applicationDirPath()+"/.temporary/")
 {
     if (!reloadDir()) qDebug()<<"Не удалось создать папку для временных файлов";
@@ -85,9 +85,9 @@ void Calibrate::start(QString url, QStringList fileName)
         emit errorRMSChanged();
         m_workingTime=getMilliSecSince(time);
         emit workingTimeChanged();
-        cameraMatrix=cv::Mat::zeros(cameraMatrix.rows,cameraMatrix.cols,cameraMatrix.type());
+        *cameraMatrix=cv::Mat::zeros(cameraMatrix->rows,cameraMatrix->cols,cameraMatrix->type());
         cameraModel->update();
-        distMatrix=cv::Mat::zeros(distMatrix.rows,distMatrix.cols,distMatrix.type());
+        *distMatrix=cv::Mat::zeros(distMatrix->rows,distMatrix->cols,distMatrix->type());
         distModel->update();
         return;
     }
@@ -95,20 +95,12 @@ void Calibrate::start(QString url, QStringList fileName)
     cv::_OutputArray rotation;
     cv::_OutputArray translation;
     int flags =  cv::CALIB_FIX_PRINCIPAL_POINT;// | cv::CALIB_RATIONAL_MODEL;
-    m_errorRMS=cv::calibrateCamera(objPoints,imgPoints,m_frameSize,cameraMatrix,distMatrix,rotation,translation,flags,criteria);
+    m_errorRMS=cv::calibrateCamera(objPoints,imgPoints,m_frameSize,*cameraMatrix,*distMatrix,rotation,translation,flags,criteria);
     emit errorRMSChanged();
     cameraModel->update();
     distModel->update();
     m_workingTime=getMilliSecSince(time);
     emit workingTimeChanged();
-}
-
-
-void Calibrate::save(QString url)
-{
-    cv::FileStorage fs(QUrl(url).toLocalFile().toLatin1().constData(), cv::FileStorage::WRITE);
-    fs<<"CameraMatrix"<<cameraMatrix;
-    fs<<"DistorsionMatrix"<<distMatrix;
 }
 
 void Calibrate::removeDir()

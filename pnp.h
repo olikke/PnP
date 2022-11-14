@@ -10,18 +10,13 @@
 #include <opencv2/opencv.hpp>
 #include "matModel.h"
 #include "appconfigMini.h"
+#include "matrixmanager.h"
 
 class PnP : public QObject
 {
     Q_OBJECT
 public:
-    PnP(AppConfigMini* appConfig,QObject *parent = nullptr);
-
-    Q_INVOKABLE void openMatrix(QString url);  //открыть матрицы калибровки и коэфф искажений
-
-    Q_INVOKABLE MatModel* getCameraModel() {return cameraModel;}  // просмотр модели внутренних параметров камеры (калибровки)
-
-    Q_INVOKABLE MatModel* getDistModel() {return distModel;} //просмотр модели коэфф искажений
+    PnP(AppConfigMini* appConfig, MatrixManager* matManager, QObject *parent = nullptr);
 
     Q_INVOKABLE MatModel* getImgModel() {return imgModel;} //координаты точек проекции объекта кадре
 
@@ -38,9 +33,6 @@ public:
     void setPointNumb(int numb);
 
     Q_INVOKABLE void changePointNumb(bool incNumb);
-
-    Q_PROPERTY(bool ready READ getReady NOTIFY readyChanged)  //готовность к позиционированию
-    bool getReady() {return m_ready;}
 
     Q_INVOKABLE void start(); //запуск позиционирования
 
@@ -80,8 +72,8 @@ public slots:
     void squareSizeChanged(int value);
 private:
     AppConfigMini* m_appConfig;
-    cv::Mat cameraMatrix;
-    cv::Mat distMatrix;
+    cv::Mat* cameraMatrix;
+    cv::Mat* distMatrix;
     cv::Mat imgPoints;
     cv::Mat objPoints;
     cv::Mat rotation;
@@ -105,7 +97,6 @@ private:
     bool m_ready=false;
     bool m_pnpReady=false;
     int m_error=1;
-    void clearCameraMatrix();
     int m_x=0;
     int m_y=0;
     double m_a1=0.;

@@ -8,7 +8,6 @@ Rectangle{
     color: Style.currentTheme.primary
 
     signal openImageDialog()
-    signal openMatrixDialog()
 
     Flickable {
         id: root
@@ -27,54 +26,6 @@ Rectangle{
                 iconSource:"qrc:/ASSETS/icon/folder.svg"
                 labelText:  "Выбрать изображение"
                 onClicked: openImageDialog()
-            }
-
-            MTK_HSeparator{}
-
-            ButtonCard{
-                iconSource:"qrc:/ASSETS/icon/matrix.svg"
-                labelText:  "Загрузить параметры камеры"
-                onClicked: openMatrixDialog()
-            }
-
-            MTK_HSeparator{}
-
-            MTK_Label{
-                text: "Матрица внутренних параметров камеры"
-                anchors.left: parent.left
-                anchors.leftMargin: Style.panelsMargins*2
-                horizontalAlignment: Text.AlignLeft
-                height: Style.cardHeight
-                color: Style.currentTheme.accent
-            }
-
-            MTK_HSeparator{}
-
-            MatTableCard{
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.margins: Style.panelsMargins
-                model: pnp.getCameraModel()
-            }
-
-            MTK_HSeparator{}
-
-            MTK_Label{
-                text: "Матрица коэффициентов искажений"
-                anchors.left: parent.left
-                anchors.leftMargin: Style.panelsMargins*2
-                horizontalAlignment: Text.AlignLeft
-                height: Style.cardHeight
-                color: Style.currentTheme.accent
-            }
-
-            MTK_HSeparator{}
-
-            MatTableCard{
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.margins: Style.panelsMargins
-                model: pnp.getDistModel()
             }
 
             MTK_HSeparator{}
@@ -187,7 +138,7 @@ Rectangle{
            MTK_HSeparator{}
 
            ButtonCard{
-               enabled: pnp.ready
+               enabled: matManager.ready
                iconSource:"qrc:/ASSETS/icon/play.svg"
                labelText:  "РАсчёт положения объекта"
                onClicked: pnp.start()
@@ -238,7 +189,7 @@ Rectangle{
            MTK_HSeparator{}
 
            ButtonCard{
-               enabled: pnp.ready
+               enabled: matManager.ready
                iconSource:"qrc:/ASSETS/icon/play.svg"
                labelText:  "Обратное проецирование"
                onClicked: pnp.projectPoints()

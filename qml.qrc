@@ -48,5 +48,8 @@
         <file>QML/PnP/Target.qml</file>
         <file>ASSETS/icon/ads_click.svg</file>
         <file>ASSETS/icon/rotate.svg</file>
+        <file>Matrix.qml</file>
+        <file>ASSETS/icon/blur_off.svg</file>
+        <file>ASSETS/icon/blur_on.svg</file>
     </qresource>
 </RCC>

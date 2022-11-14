@@ -31,6 +31,7 @@ ApplicationWindow {
         onCloseApp: close()
         onMinimizeApp: window.showMinimized()
         onOpenTools: value?  drawer.open() : drawer.close()
+        onMatrixopen: value? drawer2.open() : drawer2.close()
 
         Tabbar{
             id: tapbar
@@ -91,6 +92,18 @@ ApplicationWindow {
         y: topBar.height+Style.connectionWidth
         edge: Qt.RightEdge
         Settings{
+
+        }
+    }
+
+    MTK_Drawer{
+        id: drawer2
+
+        width: Style.sidePanel+1
+        height: parent.height - topBar.height-Style.connectionWidth
+        y: topBar.height+Style.connectionWidth
+        edge: Qt.RightEdge
+        Matrix{
 
         }
     }

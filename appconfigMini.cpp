@@ -28,6 +28,7 @@ bool AppConfigMini::loadConfig()
         m_squareSize=qsettings.value("squareSize_mm",20).toInt();
         m_epsilon=qsettings.value("epsilon",0.1).toDouble();
         m_iterations=qsettings.value("iterations",30).toInt();
+        m_fileName=qsettings.value("matrixFileName","").toString();
         qsettings.endGroup();
         return true;
     }
@@ -47,5 +48,6 @@ void AppConfigMini::writeConfig()
     qsettings.setValue("squareSize_mm",m_squareSize);
     qsettings.setValue("epsilon",m_epsilon);
     qsettings.setValue("iterations",m_iterations);
+    qsettings.setValue("matrixFileName",m_fileName);
     qsettings.endGroup();
 }

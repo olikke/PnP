@@ -39,12 +39,16 @@ Rectangle{
         MTK_HSeparator{}
 
         ButtonCard{
-            iconSource:"qrc:/ASSETS/icon/matrix.svg"
-            labelText:  "Загрузить параметры камеры"
-            onClicked: openMatrixDialog()
+            property bool und: grabber.undistort
+            iconSource:"qrc:/ASSETS/icon/blur_on.svg"
+            labelText: und? "Выключить корректор" : "Включить корректор"
+            onClicked: {
+                grabber.undistort=!und
+            }
         }
 
         MTK_HSeparator{}
+
     }
 
     Flickable{

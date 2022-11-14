@@ -58,6 +58,10 @@ public:
     Q_PROPERTY(int epsilonDivider READ getEpsilonDivider CONSTANT)
     int getEpsilonDivider() {return qRound(m_epsilonDivider);}
 
+    Q_PROPERTY(QString matrixFileName READ getMatrixFileName WRITE setMatrixFileName)
+    QString getMatrixFileName() {return m_fileName;}
+    void setMatrixFileName(QString val) {m_fileName=val;}
+
 signals:
     void darkThemeChanged(bool);
     void xChanged(int);
@@ -82,6 +86,7 @@ private:
     int m_iterations=30;
     double m_epsilon=0.1;
     double m_epsilonDivider=100.;
+    QString m_fileName="";
 private:
     bool loadConfig();
     void writeConfig();

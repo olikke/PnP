@@ -9,18 +9,18 @@
 //https://stackoverflow-com.translate.goog/questions/12299870/computing-x-y-coordinate-3d-from-image-point?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
 //https://stackoverflow.com/questions/12299870/computing-x-y-coordinate-3d-from-image-point
 
-PnP::PnP(AppConfigMini* appConfig,QObject *parent) :
+PnP::PnP(AppConfigMini* appConfig, MatrixManager* matManager,QObject *parent) :
     QObject(parent),
     m_appConfig(appConfig),
-    cameraMatrix(cv::Mat(3,3,CV_64FC1)),
-    distMatrix(cv::Mat(1,5,CV_64FC1)),
+    cameraMatrix(matManager->getCameraMatrix()),
+    distMatrix(matManager->getDistMatrix()),
     imgPoints(cv::Mat(2,5,CV_64FC1)),
     objPoints(cv::Mat(3,5,CV_64FC1)),
     rotation(cv::Mat(1,3,CV_64FC1)),
     translation(cv::Mat(1,3,CV_64FC1)),
     imgPointsCalc(cv::Mat(2,5,CV_64FC1)),
-    cameraModel(new MatModel(&cameraMatrix,this)),
-    distModel(new MatModel(&distMatrix,this)),
+    cameraModel(matManager->getCameraModel()),
+    distModel(matManager->getDistModel()),
     imgModel(new MatModel(&imgPoints,this)),
     objModel(new MatModel(&objPoints,this)),
     rotModel(new MatModel(&rotation,this)),
@@ -32,28 +32,9 @@ PnP::PnP(AppConfigMini* appConfig,QObject *parent) :
     imgPointsCalc=cv::Mat::zeros(imgPointsCalc.rows,imgPointsCalc.cols,imgPointsCalc.type());
     imgModel->update();
     imgModelCalc->update();
-    clearCameraMatrix();
     clearImgMatrix();
     m_radius=appConfig->getSquareSize();
     calcObjPoint();
-}
-
-void PnP::openMatrix(QString url)
-{
-    cv::FileStorage fs(QUrl(url).toLocalFile().toLatin1().constData(), cv::FileStorage::READ);
-    if(!fs.isOpened()){
-        qDebug()<<"Не удаётся открыть файл";
-        clearCameraMatrix();
-        m_ready=false;
-        emit readyChanged();
-        return;
-    }
-    fs["DistorsionMatrix"]>>distMatrix;
-    fs["CameraMatrix"]>>cameraMatrix;
-    cameraModel->update();
-    distModel->update();
-    m_ready=true;
-    emit readyChanged();
 }
 
 void PnP::openImage(QString url)
@@ -89,7 +70,7 @@ void PnP::findPoint(QPointF point)
 
 void PnP::setPointNumb(int numb)
 {
-   if (numb<0 || numb>distMatrix.cols-1) return;
+   if (numb<0 || numb>distMatrix->cols-1) return;
    m_pointNumb=numb;
    emit pointNumbChanged(numb);
    imgModel->highlightColumn(m_pointNumb);
@@ -98,8 +79,8 @@ void PnP::setPointNumb(int numb)
 void PnP::changePointNumb(bool incNumb)
 {
     int v= incNumb?
-               m_pointNumb==distMatrix.cols-1? 0: m_pointNumb+1:
-               m_pointNumb==0? distMatrix.cols-1 : m_pointNumb-1;
+               m_pointNumb==distMatrix->cols-1? 0: m_pointNumb+1:
+               m_pointNumb==0? distMatrix->cols-1 : m_pointNumb-1;
     setPointNumb(v);
 }
 
@@ -112,7 +93,7 @@ void PnP::start()
     std::vector<cv::Point2f>imgVector;
     for (int i=0; i<imgPoints.cols; i++)
         imgVector.push_back(cv::Point2d(imgPoints.at<double>(0,i),imgPoints.at<double>(1,i)));
-    if (!cv::solvePnP(objVector,imgVector,cameraMatrix,distMatrix,rotation,translation)) {
+    if (!cv::solvePnP(objVector,imgVector,*cameraMatrix,*distMatrix,rotation,translation)) {
         m_pnpReady=false;
         emit pnpReadyChanged();
         return;
@@ -144,8 +125,8 @@ void PnP::antiRotate()
 
 
     //calculate central point by transationMatrix
-    double leftShift=translation.at<double>(0)/translation.at<double>(2)*cameraMatrix.at<double>(0);
-    double upShift=translation.at<double>(1)/translation.at<double>(2)*cameraMatrix.at<double>(4);
+    double leftShift=translation.at<double>(0)/translation.at<double>(2)*cameraMatrix->at<double>(0);
+    double upShift=translation.at<double>(1)/translation.at<double>(2)*cameraMatrix->at<double>(4);
     int variant=doLike::FromQML;
 
 
@@ -213,7 +194,7 @@ void PnP::antiRotate()
 void PnP::projectPoints()
 {
     std::vector<cv::Point2d> projPoints;
-    cv::projectPoints(objVector,rotation,translation,cameraMatrix,distMatrix,projPoints);
+    cv::projectPoints(objVector,rotation,translation,*cameraMatrix,*distMatrix,projPoints);
 
     for (size_t i=0; i<projPoints.size(); i++) {
         imgPointsCalc.at<double>(0,i)=projPoints.at(i).x;
@@ -223,28 +204,28 @@ void PnP::projectPoints()
     cv::Mat rotationMatrix;
     cv::Rodrigues(rotation,rotationMatrix);
 
-    std::cout<<cameraMatrix*(rotationMatrix*cv::Mat(objVector.at(0))-translation)<<std::endl;
+    std::cout<<*cameraMatrix*(rotationMatrix*cv::Mat(objVector.at(0))-translation)<<std::endl;
     cv::Mat centerObj=(cv::Mat_<double>(3,1)<<imgPoints.at<double>(0,0),imgPoints.at<double>(1,0),translation.at<double>(1));
-   std::cout<<centerObj<<std::endl;
-    std::cout<<rotationMatrix.inv()*(cameraMatrix.inv()*centerObj-translation)<<std::endl;
+    std::cout<<centerObj<<std::endl;
+    std::cout<<rotationMatrix.inv()*(cameraMatrix->inv()*centerObj-translation)<<std::endl;
 
 }
 
 void PnP::undistort()
 {
     cv::Mat und1;
-    cv::Mat newCameraMatrix1=cv::getOptimalNewCameraMatrix(cameraMatrix,distMatrix,image.size(),0,image.size());
-    cv::undistort(image,und1,cameraMatrix,distMatrix,newCameraMatrix1);
+    cv::Mat newCameraMatrix1=cv::getOptimalNewCameraMatrix(*cameraMatrix,*distMatrix,image.size(),0,image.size());
+    cv::undistort(image,und1,*cameraMatrix,*distMatrix,newCameraMatrix1);
     cv::imshow("ooo",und1);
 
     cv::Mat und2;
-    cv::Mat newCameraMatrix2=cv::getOptimalNewCameraMatrix(cameraMatrix,distMatrix,image.size(),0.5,image.size());
-    cv::undistort(image,und2,cameraMatrix,distMatrix,newCameraMatrix2);
+    cv::Mat newCameraMatrix2=cv::getOptimalNewCameraMatrix(*cameraMatrix,*distMatrix,image.size(),0.5,image.size());
+    cv::undistort(image,und2,*cameraMatrix,*distMatrix,newCameraMatrix2);
     cv::imshow("ooo2",und2);
 
     cv::Mat und3;
-    cv::Mat newCameraMatrix3=cv::getOptimalNewCameraMatrix(cameraMatrix,distMatrix,image.size(),1,image.size());
-    cv::undistort(image,und3,cameraMatrix,distMatrix,newCameraMatrix3);
+    cv::Mat newCameraMatrix3=cv::getOptimalNewCameraMatrix(*cameraMatrix,*distMatrix,image.size(),1,image.size());
+    cv::undistort(image,und3,*cameraMatrix,*distMatrix,newCameraMatrix3);
     cv::imshow("ooo3",und3);
 
 }
@@ -295,12 +276,4 @@ void PnP::calcObjPoint()
     objPoints.at<double>(0,4)=0;
     objPoints.at<double>(1,4)=m_radius*1.;
     objModel->update();
-}
-
-void PnP::clearCameraMatrix()
-{
-    cameraMatrix=cv::Mat::zeros(cameraMatrix.rows,cameraMatrix.cols,cameraMatrix.type());
-    cameraModel->update();
-    distMatrix=cv::Mat::zeros(distMatrix.rows,distMatrix.cols,distMatrix.type());
-    distModel->update();
 }

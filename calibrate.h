@@ -11,6 +11,7 @@
 #include "global.h"
 #include "matModel.h"
 #include "appconfigMini.h"
+#include "matrixmanager.h"
 
 class Calibrate;
 
@@ -31,7 +32,7 @@ class Calibrate : public QObject
 public:
     // есть разночтения - учитывать ли squareSize (т.е. размер квадрата доски) ИМЕННО КВАДРАТА! ровного
    // boardWidth и boardHeight кол-во углов доски
-    Calibrate(AppConfigMini* appConfig,QObject *parent = nullptr);
+    Calibrate(AppConfigMini* appConfig, MatrixManager* matManager, QObject *parent = nullptr);
     ~Calibrate();
 
     Q_PROPERTY(double workingTime READ getWorkingTime NOTIFY workingTimeChanged)
@@ -48,12 +49,6 @@ public:
 
     Q_INVOKABLE void start(QString url, QStringList fileName);
 
-    Q_INVOKABLE MatModel* getCameraModel() {return cameraModel;}
-
-    Q_INVOKABLE MatModel* getDistModel() {return distModel;}
-
-    Q_INVOKABLE void save(QString url);
-
 signals:
     void workingTimeChanged();
     void successFrameChanged();
@@ -65,9 +60,9 @@ protected:
 
 private:
     AppConfigMini* m_appConfig;
-    cv::Mat cameraMatrix;
+    cv::Mat* cameraMatrix;
     MatModel* cameraModel;
-    cv::Mat distMatrix;
+    cv::Mat* distMatrix;
     MatModel* distModel;
     QString tempDir;
     double m_workingTime=0.;

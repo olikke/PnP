@@ -3,6 +3,7 @@
 #include <QQmlContext>
 #include <QIcon>
 
+
 #include "imageprovider.h"
 #include "appconfigMini.h"
 #include "camfinder.h"
@@ -10,6 +11,7 @@
 #include "folderBackend.h"
 #include "calibrate.h"
 #include "pnp.h"
+#include "matrixmanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +25,9 @@ int main(int argc, char *argv[])
     AppConfigMini* appConfig=new AppConfigMini(&app);
     context->setContextProperty("appConfig",appConfig);
 
+    MatrixManager* matManager= new MatrixManager(appConfig, &app);
+    context->setContextProperty("matManager",matManager);
+
     ImageProvider* videoProvider = new ImageProvider(&app,QSize(appConfig->getFrameWidth(),appConfig->getFrameHeight()));
     context->setContextProperty("videoProvider",videoProvider);
     engine.addImageProvider("mlive",videoProvider);
@@ -30,7 +35,7 @@ int main(int argc, char *argv[])
     CamFinder* camFinder=new CamFinder(&app);
     context->setContextProperty("camFinder",camFinder);
 
-    GrabOpenCV* grabber=new GrabOpenCV(&app,appConfig->getFrameWidth(),appConfig->getFrameHeight());
+    GrabOpenCV* grabber=new GrabOpenCV(matManager,&app,appConfig->getFrameWidth(),appConfig->getFrameHeight());
     context->setContextProperty("grabber",grabber);
 
     QObject::connect(grabber,&GrabOpenCV::newFrame,videoProvider,&ImageProvider::updateImage);
@@ -38,10 +43,10 @@ int main(int argc, char *argv[])
     FolderBackend* folderBack=new FolderBackend(&app);
     context->setContextProperty("folderBack",folderBack);
 
-    Calibrate* calibrate=new Calibrate(appConfig,&app);
+    Calibrate* calibrate=new Calibrate(appConfig,matManager,&app);
     context->setContextProperty("calibrate",calibrate);
 
-    PnP* pnp=new PnP(appConfig,&app);
+    PnP* pnp=new PnP(appConfig,matManager,&app);
     context->setContextProperty("pnp",pnp);
 
     ImageProvider* pnpProvider = new ImageProvider(&app,QSize(appConfig->getFrameWidth(),appConfig->getFrameHeight()));
