@@ -73,11 +73,13 @@ void Calibrate::start(QString url, QStringList fileName)
     }
     QList<Task> result=QtConcurrent::blockingMapped(blank,calc);
     m_succesFrame=0;
+    std::vector<std::string> succNames;
     for (Task task:result) {
         if (!task.success) continue;
         m_succesFrame++;
         objPoints.push_back(task.object);
         imgPoints.push_back(task.corners);
+        succNames.push_back(task.fileName.toLatin1().constData());
     }
     emit successFrameChanged();
     if (m_succesFrame==0) {
@@ -92,10 +94,15 @@ void Calibrate::start(QString url, QStringList fileName)
         return;
     }
     //https://stackoverflow-com.translate.goog/questions/53277597/fundamental-understanding-of-tvecs-rvecs-in-opencv-aruco?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
-    cv::_OutputArray rotation;
-    cv::_OutputArray translation;
+    std::vector<cv::Mat> rotation;
+    std::vector<cv::Mat> translation;
     int flags =  cv::CALIB_FIX_PRINCIPAL_POINT;// | cv::CALIB_RATIONAL_MODEL;
     m_errorRMS=cv::calibrateCamera(objPoints,imgPoints,m_frameSize,*cameraMatrix,*distMatrix,rotation,translation,flags,criteria);
+//    for (int i=0; i<objPoints.size(); i++) {
+//        std::cout<<succNames.at(i)<<std::endl;
+//        std::cout<<rotation.at(i)<<std::endl;
+//        std::cout<<translation.at(i)<<std::endl<<std::endl;
+//    }
     emit errorRMSChanged();
     cameraModel->update();
     distModel->update();

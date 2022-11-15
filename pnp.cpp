@@ -4,7 +4,6 @@
 //https://gist-github-com.translate.goog/dbcesar/421c4c291b229615cc6a?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
 //https://gist.github.com/dbcesar/421c4c291b229615cc6a
 //https://www.guivi.one/2019/11/19/projecting-point-to-world-coordinate/
-//opencv ProjectPoints
 
 //https://stackoverflow-com.translate.goog/questions/12299870/computing-x-y-coordinate-3d-from-image-point?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
 //https://stackoverflow.com/questions/12299870/computing-x-y-coordinate-3d-from-image-point
@@ -111,6 +110,7 @@ void PnP::start()
 
 void PnP::antiRotate()
 {
+
     int width=image.cols;
     int height=image.rows;
 
@@ -127,12 +127,13 @@ void PnP::antiRotate()
     //calculate central point by transationMatrix
     double leftShift=translation.at<double>(0)/translation.at<double>(2)*cameraMatrix->at<double>(0);
     double upShift=translation.at<double>(1)/translation.at<double>(2)*cameraMatrix->at<double>(4);
-    int variant=doLike::FromQML;
+    int variant=doLike::RealPoint;
 
 
     //координаты новых углов трапеции найдём через QTransform
     //QTransform расчитывается относительно точки (0,0). Не всегда очевидно:
     //для нас центральная точка - это QPoint(imgPoints(0,0),imgPoints(1,0)) m_pointNUmb==0
+    qDebug()<<imgPoints.at<double>(0,0)<<imgPoints.at<double>(1,0);
     QTransform transform=QTransform();
     switch (variant) {
     case RealPoint:  transform.translate(imgPoints.at<double>(0,0),imgPoints.at<double>(1,0)); break;
@@ -145,9 +146,9 @@ void PnP::antiRotate()
         transform.rotate(m_a2,Qt::YAxis);
         transform.rotate(m_a3,Qt::ZAxis);
     } else {
-        transform.rotate(qRadiansToDegrees(rotation.at<double>(0)),Qt::XAxis);
-        transform.rotate(-qRadiansToDegrees(rotation.at<double>(1)),Qt::YAxis);
-       transform.rotate(-qRadiansToDegrees(rotation.at<double>(2)),Qt::ZAxis);
+        transform.rotateRadians(-rotation.at<double>(0),Qt::XAxis);
+        transform.rotateRadians(rotation.at<double>(1),Qt::YAxis);
+       transform.rotateRadians(rotation.at<double>(2),Qt::ZAxis);
     }
     switch (variant) {
     case RealPoint:  transform.translate(-imgPoints.at<double>(0,0),-imgPoints.at<double>(1,0)); break;

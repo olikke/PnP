@@ -37,7 +37,7 @@ Rectangle{
 
             ButtonCard{
                 iconSource:"qrc:/ASSETS/icon/folder.svg"
-                labelText:  folderModel.folder!=""? folderModel.folder :"Выбрать изображения"
+                labelText:  folderModel.folder!=""? folderModel.folder :"Выбрать папку с изображениями"
                 onClicked: openFileDialog()
             }
 
