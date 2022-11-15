@@ -18,7 +18,7 @@ Rectangle{
         nameFilters: [ "XML files (*.xml)"  ]
         selectExisting: false
         onAccepted: {
-            calibrate.save(fileUrl)
+            matManager.save(fileUrl)
         }
     }
 
