@@ -18,11 +18,9 @@ class PnP : public QObject
 public:
     PnP(AppConfigMini* appConfig, MatrixManager* matManager, QObject *parent = nullptr);
 
-    Q_INVOKABLE MatModel* getImgModel() {return imgModel;} //координаты точек проекции объекта кадре
+    Q_INVOKABLE MatModel* getImage2DModel() {return image2DModel;} //координаты точек проекции объекта кадре
 
-    Q_INVOKABLE MatModel* getObjModel() {return objModel;} //координаты точек объекта в пространстве
-
-    Q_INVOKABLE MatModel* getImgModelCalc() {return imgModelCalc;} //координаты точек проекции объекта пересчитанные по результатам rvec и tvec
+    Q_INVOKABLE MatModel* getImage3DModel() {return image3DModel;} //координаты точек объекта в пространстве
 
     Q_INVOKABLE void openImage(QString url);
 
@@ -43,24 +41,15 @@ public:
 
     Q_INVOKABLE MatModel* getTranslation() {return transModel;} //модель итоговой матрицы переноса
 
-    Q_INVOKABLE void antiRotate();  //восстановление изображения по матрице поворота (для оценки результата)
+    Q_INVOKABLE void recoveryOpenCV(); //проецирование по результатам rvec и tvec по методу opencv
 
-    Q_INVOKABLE void projectPoints(); //обратное проецирование точек обьекта на изображение по результатам rvec и tvec
+    Q_INVOKABLE MatModel* getRecoveryOpenCV() {return recovery2DModel;} //координаты точек проекции объекта пересчитанные по результатам rvec и tvec
 
-    Q_INVOKABLE void setX(int val) {m_x=val; antiRotate();}
-    Q_INVOKABLE void setY(int val) {m_y=val;antiRotate();}
-    Q_INVOKABLE void setA1(int val) {m_a1=val/10;antiRotate();}
-    Q_INVOKABLE void setA2(int val) {m_a2=val/10;antiRotate();}
-    Q_INVOKABLE void setA3(int val) {m_a3=val/10;antiRotate();}
-    Q_INVOKABLE void setX2(int val) {m_x2=val; antiRotate();}
-    Q_INVOKABLE void setY2(int val) {m_y2=val;antiRotate();}
+    Q_INVOKABLE void recoveryObskur(); //проецирование по результатам rvec и tvec уравнением камеры Обскура
 
-    Q_INVOKABLE void undistort();
-
-
+    Q_INVOKABLE MatModel* getRecoveryObskur() {return recovery2DObskurModel;}
 signals:
     void newFrame(const cv::Mat frame);
-    void radiusChanged(int);
     void pointNumbChanged(int);
     void paintTarget(int numb, QPointF point);
     void clearTarget(int numb);
@@ -74,18 +63,20 @@ private:
     AppConfigMini* m_appConfig;
     cv::Mat* cameraMatrix;
     cv::Mat* distMatrix;
-    cv::Mat imgPoints;
-    cv::Mat objPoints;
+    cv::Mat points2D;
+    cv::Mat points3D;
     cv::Mat rotation;
     cv::Mat translation;
-    cv::Mat imgPointsCalc;
+    cv::Mat recovery2D;
+    cv::Mat recovery2DObskur;
     MatModel* cameraModel;
     MatModel* distModel;
-    MatModel* imgModel;
-    MatModel* objModel;
+    MatModel* image2DModel;
+    MatModel* image3DModel;
     MatModel* rotModel;
     MatModel* transModel;
-    MatModel* imgModelCalc;
+    MatModel* recovery2DModel;
+    MatModel* recovery2DObskurModel;
     std::vector<cv::Point3d> objVector;
     cv::Mat image;
     int m_radius=0;
@@ -97,12 +88,4 @@ private:
     bool m_ready=false;
     bool m_pnpReady=false;
     int m_error=1;
-    int m_x=0;
-    int m_y=0;
-    double m_a1=0.;
-    double m_a2=0.;
-    double m_a3=0.;
-    int m_x2=0;
-    int m_y2=0;
-
 };

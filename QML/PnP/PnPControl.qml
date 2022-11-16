@@ -112,7 +112,7 @@ Rectangle{
                anchors.left: parent.left
                anchors.right: parent.right
                anchors.margins: Style.panelsMargins
-               model: pnp.getImgModel()
+               model: pnp.getImage2DModel()
            }
 
            MTK_HSeparator{}
@@ -132,7 +132,7 @@ Rectangle{
                anchors.left: parent.left
                anchors.right: parent.right
                anchors.margins: Style.panelsMargins
-               model: pnp.getObjModel()
+               model: pnp.getImage3DModel()
            }
 
            MTK_HSeparator{}
@@ -191,8 +191,8 @@ Rectangle{
            ButtonCard{
                enabled: matManager.ready
                iconSource:"qrc:/ASSETS/icon/play.svg"
-               labelText:  "Обратное проецирование"
-               onClicked: pnp.projectPoints()
+               labelText:  "Обратное проецирование openCV"
+               onClicked: pnp.recoveryOpenCV()
            }
 
            MTK_HSeparator{}
@@ -201,96 +201,28 @@ Rectangle{
                anchors.left: parent.left
                anchors.right: parent.right
                anchors.margins: Style.panelsMargins
-               model: pnp.getImgModelCalc()
+               model: pnp.getRecoveryOpenCV()
            }
 
            MTK_HSeparator{}
 
            ButtonCard{
                enabled: pnp.pnpReady
-               iconSource:"qrc:/ASSETS/icon/rotate.svg"
-               labelText:  "Антивращение"
-               onClicked: pnp.antiRotate()
+               iconSource:"qrc:/ASSETS/icon/play.svg"
+               labelText:  "Обратное проецирование уравнением камеры Обскура"
+               onClicked: pnp.recoveryObskur()
            }
 
            MTK_HSeparator{}
 
-           SliderCard{
-               labelText: "Х, пикс"
-               from:-720*2
-               to: 720*2
-               value: 0
-               stepSize: 1
-               onMove: pnp.setX(value)
-           }
-
-           SliderCard{
-               labelText: "Y, пикс"
-               from: -576*2
-               to: 576*2
-               value: 0
-               stepSize: 1
-               onMove: pnp.setY(value)
+           MatTableCard{
+               anchors.left: parent.left
+               anchors.right: parent.right
+               anchors.margins: Style.panelsMargins
+               model: pnp.getRecoveryObskur()
            }
 
            MTK_HSeparator{}
-
-           SliderCard{
-               labelText: "a1, *100"
-               from:-90*10
-               to: 90*10
-               value: 0
-               stepSize: 1
-               divider: 10
-               onMove: pnp.setA1(value)
-           }
-           SliderCard{
-               labelText: "a2, *100"
-               from:-90*10
-               to: 90*10
-               value: 0
-               divider: 10
-               stepSize: 1
-               onMove: pnp.setA2(value)
-           }
-           SliderCard{
-               labelText: "a3, *100"
-               from:-90*10
-               to: 90*10
-               value: 0
-               divider: 10
-               stepSize: 1
-               onMove: pnp.setA3(value)
-           }
-
-           MTK_HSeparator{}
-
-           SliderCard{
-               labelText: "Х2, пикс"
-               from:-720*2
-               to: 720*2
-               value: 0
-               stepSize: 1
-               onMove: pnp.setX2(value)
-           }
-
-           SliderCard{
-               labelText: "Y2, пикс"
-               from: -576*2
-               to: 576*2
-               value: 0
-               stepSize: 1
-               onMove: pnp.setY2(value)
-           }
-
-           MTK_HSeparator{}
-
-           ButtonCard{
-               iconSource:"qrc:/ASSETS/icon/folder.svg"
-               labelText:  "Выправить"
-               onClicked: pnp.undistort()
-           }
-
         }
     }
 }

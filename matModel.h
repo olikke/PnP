@@ -12,7 +12,7 @@ class MatModel :  public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit MatModel(cv::Mat* mat, QObject* parent=nullptr);
+    MatModel(cv::Mat* mat, QObject* parent=nullptr);
 
     enum Roles {
         HighligthRole = Qt::UserRole + 1

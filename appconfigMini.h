@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QTextCodec>
 #include <QFile>
+#include <QDebug>
 
 class AppConfigMini : public QObject
 {

@@ -4,7 +4,6 @@
 //https://gist-github-com.translate.goog/dbcesar/421c4c291b229615cc6a?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
 //https://gist.github.com/dbcesar/421c4c291b229615cc6a
 //https://www.guivi.one/2019/11/19/projecting-point-to-world-coordinate/
-
 //https://stackoverflow-com.translate.goog/questions/12299870/computing-x-y-coordinate-3d-from-image-point?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
 //https://stackoverflow.com/questions/12299870/computing-x-y-coordinate-3d-from-image-point
 
@@ -13,24 +12,28 @@ PnP::PnP(AppConfigMini* appConfig, MatrixManager* matManager,QObject *parent) :
     m_appConfig(appConfig),
     cameraMatrix(matManager->getCameraMatrix()),
     distMatrix(matManager->getDistMatrix()),
-    imgPoints(cv::Mat(2,5,CV_64FC1)),
-    objPoints(cv::Mat(3,5,CV_64FC1)),
+    points2D(cv::Mat(2,5,CV_64FC1)),
+    points3D(cv::Mat(3,5,CV_64FC1)),
     rotation(cv::Mat(1,3,CV_64FC1)),
     translation(cv::Mat(1,3,CV_64FC1)),
-    imgPointsCalc(cv::Mat(2,5,CV_64FC1)),
+    recovery2D(cv::Mat(2,5,CV_64FC1)),
+    recovery2DObskur(cv::Mat(2,5,CV_64FC1)),
     cameraModel(matManager->getCameraModel()),
     distModel(matManager->getDistModel()),
-    imgModel(new MatModel(&imgPoints,this)),
-    objModel(new MatModel(&objPoints,this)),
+    image2DModel(new MatModel(&points2D,this)),
+    image3DModel(new MatModel(&points3D,this)),
     rotModel(new MatModel(&rotation,this)),
     transModel(new MatModel(&translation,this)),
-    imgModelCalc(new MatModel(&imgPointsCalc,this))
+    recovery2DModel(new MatModel(&recovery2D,this)),
+    recovery2DObskurModel(new MatModel(&recovery2DObskur,this))
 {
     qsrand(static_cast<unsigned int>(QDateTime::currentMSecsSinceEpoch()));
-    imgPoints=cv::Mat::zeros(imgPoints.rows,imgPoints.cols,imgPoints.type());
-    imgPointsCalc=cv::Mat::zeros(imgPointsCalc.rows,imgPointsCalc.cols,imgPointsCalc.type());
-    imgModel->update();
-    imgModelCalc->update();
+    points2D=cv::Mat::zeros(points2D.rows,points2D.cols,points2D.type());
+    recovery2D=cv::Mat::zeros(recovery2D.rows,recovery2D.cols,recovery2D.type());
+    recovery2DObskur=cv::Mat::zeros(recovery2DObskur.rows,recovery2DObskur.cols,recovery2DObskur.type());
+    image2DModel->update();
+    recovery2DModel->update();
+    recovery2DObskurModel->update();
     clearImgMatrix();
     m_radius=appConfig->getSquareSize();
     calcObjPoint();
@@ -60,11 +63,11 @@ void PnP::findPoint(QPointF point)
         emit clearTarget(m_pointNumb);
         return;
     }
-    imgPoints.at<double>(0,m_pointNumb)=static_cast<double>(corners.at<cv::Vec2f>(numb)[0]);
-    imgPoints.at<double>(1,m_pointNumb)=static_cast<double>(corners.at<cv::Vec2f>(numb)[1]);
-    emit paintTarget(m_pointNumb,QPointF(imgPoints.at<double>(0,m_pointNumb),
-                                         imgPoints.at<double>(1,m_pointNumb)));
-    imgModel->update();
+    points2D.at<double>(0,m_pointNumb)=static_cast<double>(corners.at<cv::Vec2f>(numb)[0]);
+    points2D.at<double>(1,m_pointNumb)=static_cast<double>(corners.at<cv::Vec2f>(numb)[1]);
+    emit paintTarget(m_pointNumb,QPointF(points2D.at<double>(0,m_pointNumb),
+                                         points2D.at<double>(1,m_pointNumb)));
+    image2DModel->update();
 }
 
 void PnP::setPointNumb(int numb)
@@ -72,7 +75,7 @@ void PnP::setPointNumb(int numb)
    if (numb<0 || numb>distMatrix->cols-1) return;
    m_pointNumb=numb;
    emit pointNumbChanged(numb);
-   imgModel->highlightColumn(m_pointNumb);
+   image2DModel->highlightColumn(m_pointNumb);
 }
 
 void PnP::changePointNumb(bool incNumb)
@@ -86,149 +89,76 @@ void PnP::changePointNumb(bool incNumb)
 void PnP::start()
 {
     objVector.clear();
-    for (int i=0; i<objPoints.cols; i++) {
-        objVector.push_back(cv::Point3d(objPoints.at<double>(0,i),objPoints.at<double>(1,i),objPoints.at<double>(2,i)));
+    for (int i=0; i<points3D.cols; i++) {
+        objVector.push_back(cv::Point3d(points3D.at<double>(0,i),points3D.at<double>(1,i),points3D.at<double>(2,i)));
     }
     std::vector<cv::Point2f>imgVector;
-    for (int i=0; i<imgPoints.cols; i++)
-        imgVector.push_back(cv::Point2d(imgPoints.at<double>(0,i),imgPoints.at<double>(1,i)));
+    for (int i=0; i<points2D.cols; i++)
+        imgVector.push_back(cv::Point2d(points2D.at<double>(0,i),points2D.at<double>(1,i)));
     if (!cv::solvePnP(objVector,imgVector,*cameraMatrix,*distMatrix,rotation,translation)) {
         m_pnpReady=false;
         emit pnpReadyChanged();
         return;
     }
-    std::cout << "solvePNP Rotation Vector: " << rotation << std::endl;
-    std::cout << "solvePNP TranslationVector: " << translation << std::endl;
-    cv::Mat rotationMatrix;
-    cv::Rodrigues(rotation,rotationMatrix);
-    std::cout<<"Rotation Matrix: "<<rotationMatrix<<std::endl;
     rotModel->update();
     transModel->update();
     m_pnpReady=true;
     emit pnpReadyChanged();
 }
 
-void PnP::antiRotate()
+void PnP::recoveryObskur()
 {
+    std::vector<cv::Mat> newObjPoints3d;
+    for (int i=0; i<points3D.cols; i++)
+        newObjPoints3d.push_back((cv::Mat_<double>(3,1)
+                                  <<points3D.at<double>(0,i),
+                                  points3D.at<double>(1,i),
+                                  1));
 
-    int width=image.cols;
-    int height=image.rows;
+    cv::Mat rotationMatrix;
+    cv::Rodrigues(rotation,rotationMatrix);
 
-    enum doLike{
-        RealPoint,  //
-        RealPointCalc, //центральная точка, расчитанная по translation
-        CentralPoint, //центральная точка QPoint(imgPoints(0,0),imgPoints(1,0)) m_pointNUmb==0
-        FromQML
-    };
-
-    cv::circle(image,cv::Point(imgPoints.at<double>(0,0),imgPoints.at<double>(1,0)),5,cv::Scalar(255),2);
-
-
-    //calculate central point by transationMatrix
-    double leftShift=translation.at<double>(0)/translation.at<double>(2)*cameraMatrix->at<double>(0);
-    double upShift=translation.at<double>(1)/translation.at<double>(2)*cameraMatrix->at<double>(4);
-    int variant=doLike::RealPoint;
-
-
-    //координаты новых углов трапеции найдём через QTransform
-    //QTransform расчитывается относительно точки (0,0). Не всегда очевидно:
-    //для нас центральная точка - это QPoint(imgPoints(0,0),imgPoints(1,0)) m_pointNUmb==0
-    qDebug()<<imgPoints.at<double>(0,0)<<imgPoints.at<double>(1,0);
-    QTransform transform=QTransform();
-    switch (variant) {
-    case RealPoint:  transform.translate(imgPoints.at<double>(0,0),imgPoints.at<double>(1,0)); break;
-    case RealPointCalc: transform.translate(-leftShift,-upShift); break;
-    case CentralPoint: transform.translate(width/2,height/2);break;
-    case FromQML: transform.translate(m_x,m_y);break;
-    }    
-    if (variant==FromQML) {
-        transform.rotate(m_a1,Qt::XAxis);
-        transform.rotate(m_a2,Qt::YAxis);
-        transform.rotate(m_a3,Qt::ZAxis);
-    } else {
-        transform.rotateRadians(-rotation.at<double>(0),Qt::XAxis);
-        transform.rotateRadians(rotation.at<double>(1),Qt::YAxis);
-       transform.rotateRadians(rotation.at<double>(2),Qt::ZAxis);
+    std::vector<cv::Point2d> temp;
+    for (int i=0; i<newObjPoints3d.size(); i++) {
+        cv::Mat p=*cameraMatrix*(rotationMatrix*newObjPoints3d.at(i)+translation);
+        p/=p.at<double>(2);
+        temp.push_back(cv::Point2d(p.at<double>(0),p.at<double>(1)));
+        recovery2DObskur.at<double>(0,i)=p.at<double>(0);
+        recovery2DObskur.at<double>(1,i)=p.at<double>(1);
     }
-    switch (variant) {
-    case RealPoint:  transform.translate(-imgPoints.at<double>(0,0),-imgPoints.at<double>(1,0)); break;
-    case RealPointCalc: transform.translate(+leftShift,+upShift); break;
-    case CentralPoint: transform.translate(-width/2,-height/2);break;
-    case FromQML: transform.translate(m_x2,m_y2);break;
-    }
+    cv::Scalar color=cv::Scalar(0x9b,0x03,0xe5);
 
-    QRect srcRect=QRect(0,0,width,height);
-    QPolygon polygon=transform.mapToPolygon(srcRect);
-    //само преобразование через матрицу гомографии
-    std::vector<cv::Point2f> src;
-    std::vector<cv::Point2f> dst;
-    //attention!!!!
-    // преобразование из кривой плоскости в прямую, так что не перепутай src и dst!!!!
-
-    dst.push_back(cv::Point2f(0,0));
-    dst.push_back(cv::Point2f(width,0));
-    dst.push_back(cv::Point2f(width,height));
-    dst.push_back(cv::Point2f(0,height));
-
-    src.push_back(cv::Point2f(polygon.point(0).x(),polygon.point(0).y()));
-    src.push_back(cv::Point2f(polygon.point(1).x(),polygon.point(1).y()));
-    src.push_back(cv::Point2f(polygon.point(2).x(),polygon.point(2).y()));
-    src.push_back(cv::Point2f(polygon.point(3).x(),polygon.point(3).y()));
-    cv::Mat homo=cv::findHomography(src,dst,CV_RANSAC,5.);
-
-    cv::Mat image2;
-    cv::warpPerspective(image,image2,homo,cv::Size());
-
-    for (int i=40; i<width;i+=40) {
-        cv::line(image2,cv::Point(i,0),cv::Point(i,height),cv::Scalar(0,125,125));
-    }
-    for (int i=40; i<height;i+=40) {
-        cv::line(image2,cv::Point(0,i),cv::Point(width,i),cv::Scalar(0,125,125));
-    }
-    cv::line(image2,cv::Point(0,height/2),cv::Point(width,height/2),cv::Scalar(255));
-    cv::line(image2,cv::Point(width/2,0),cv::Point(width/2,height),cv::Scalar(255));
-    emit newFrame(image2);
-  //  cv::resize(image2,image2,cv::Size(image2.cols,image2.rows));
-    // cv::imshow("ooooo",image2);
+    cv::circle(image,temp.at(0),5,color,2);
+    cv::line(image,temp.at(1),temp.at(2),color,2);
+    cv::line(image,temp.at(2),temp.at(3),color,2);
+    cv::line(image,temp.at(3),temp.at(4),color,2);
+    cv::line(image,temp.at(4),temp.at(1),color,2);
+    emit newFrame(image);
+    recovery2DObskurModel->update();
+    //https://ru.wikipedia.org/wiki/%D0%9C%D0%B0%D1%82%D1%80%D0%B8%D1%86%D0%B0_%D0%BF%D0%BE%D0%B2%D0%BE%D1%80%D0%BE%D1%82%D0%B0#%D0%9C%D0%B0%D1%82%D1%80%D0%B8%D1%86%D0%B0_%D0%BF%D0%BE%D0%B2%D0%BE%D1%80%D0%BE%D1%82%D0%B0_%D0%B2_%D1%82%D1%80%D1%91%D1%85%D0%BC%D0%B5%D1%80%D0%BD%D0%BE%D0%BC_%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B5
+   // https://fossies.org/linux/opencv/modules/calib3d/src/calibration.cpp
+    double alfa=qDegreesToRadians(rotation.at<double>(0)); //вокруг х по ширине кадра
+    double betta=/*qDegreesToRadians*/(rotation.at<double>(1)); //вокруг y по высоте кадра
+    double gamma=/*qDegreesToRadians*/(rotation.at<double>(2)); //вокруг z от центра КУ к обьекту
+    cv::Mat myRotation=cv::Mat(3,3,CV_64FC1);
+    myRotation=cv::Mat::zeros(myRotation.rows,myRotation.cols,myRotation.type());
+    myRotation.at<double>(0,0)=qCos(betta)*qCos(gamma);
+    myRotation.at<double>(0,1)=-qCos(betta)*qSin(gamma);
+    myRotation.at<double>(0,2)=qSin(betta);
+    std::cout<<"myRotation"<<myRotation<<std::endl;
+    std::cout<<"rotationMatrix"<<rotationMatrix<<std::endl;
 }
 
-void PnP::projectPoints()
+void PnP::recoveryOpenCV()
 {
     std::vector<cv::Point2d> projPoints;
     cv::projectPoints(objVector,rotation,translation,*cameraMatrix,*distMatrix,projPoints);
 
     for (size_t i=0; i<projPoints.size(); i++) {
-        imgPointsCalc.at<double>(0,i)=projPoints.at(i).x;
-        imgPointsCalc.at<double>(1,i)=projPoints.at(i).y;
+        recovery2D.at<double>(0,i)=projPoints.at(i).x;
+        recovery2D.at<double>(1,i)=projPoints.at(i).y;
     }
-    imgModelCalc->update();
-    cv::Mat rotationMatrix;
-    cv::Rodrigues(rotation,rotationMatrix);
-
-    std::cout<<*cameraMatrix*(rotationMatrix*cv::Mat(objVector.at(0))-translation)<<std::endl;
-    cv::Mat centerObj=(cv::Mat_<double>(3,1)<<imgPoints.at<double>(0,0),imgPoints.at<double>(1,0),translation.at<double>(1));
-    std::cout<<centerObj<<std::endl;
-    std::cout<<rotationMatrix.inv()*(cameraMatrix->inv()*centerObj-translation)<<std::endl;
-
-}
-
-void PnP::undistort()
-{
-    cv::Mat und1;
-    cv::Mat newCameraMatrix1=cv::getOptimalNewCameraMatrix(*cameraMatrix,*distMatrix,image.size(),0,image.size());
-    cv::undistort(image,und1,*cameraMatrix,*distMatrix,newCameraMatrix1);
-    cv::imshow("ooo",und1);
-
-    cv::Mat und2;
-    cv::Mat newCameraMatrix2=cv::getOptimalNewCameraMatrix(*cameraMatrix,*distMatrix,image.size(),0.5,image.size());
-    cv::undistort(image,und2,*cameraMatrix,*distMatrix,newCameraMatrix2);
-    cv::imshow("ooo2",und2);
-
-    cv::Mat und3;
-    cv::Mat newCameraMatrix3=cv::getOptimalNewCameraMatrix(*cameraMatrix,*distMatrix,image.size(),1,image.size());
-    cv::undistort(image,und3,*cameraMatrix,*distMatrix,newCameraMatrix3);
-    cv::imshow("ooo3",und3);
-
+    recovery2DModel->update();
 }
 
 void PnP::squareSizeChanged(int value)
@@ -251,30 +181,30 @@ void PnP::findChessboardCorners()
 
 void PnP::clearImgMatrix()
 {
-    imgPoints=cv::Mat::zeros(imgPoints.rows,imgPoints.cols,imgPoints.type());
-    imgModel->update();
-    imgModel->highlightColumn(m_pointNumb);
+    points2D=cv::Mat::zeros(points2D.rows,points2D.cols,points2D.type());
+    image2DModel->update();
+    image2DModel->highlightColumn(m_pointNumb);
     emit clearAll();
 }
 
 void PnP::calcObjPoint()
 {
     //z - always 0
-    objPoints=cv::Mat::zeros(objPoints.rows,objPoints.cols,objPoints.type());
+    points3D=cv::Mat::zeros(points3D.rows,points3D.cols,points3D.type());
     //central point
-    objPoints.at<double>(0,0)=0.;
-    objPoints.at<double>(1,0)=0.;
+    points3D.at<double>(0,0)=0.;
+    points3D.at<double>(1,0)=0.;
     //left point
-    objPoints.at<double>(0,1)=-m_radius*1.;
-    objPoints.at<double>(1,1)=0.;
+    points3D.at<double>(0,1)=-m_radius*1.;
+    points3D.at<double>(1,1)=0.;
     //up point
-    objPoints.at<double>(0,2)=0;
-    objPoints.at<double>(1,2)=-m_radius*1.;
+    points3D.at<double>(0,2)=0;
+    points3D.at<double>(1,2)=-m_radius*1.;
     //right point
-    objPoints.at<double>(0,3)=m_radius*1.;
-    objPoints.at<double>(1,3)=0.;
+    points3D.at<double>(0,3)=m_radius*1.;
+    points3D.at<double>(1,3)=0.;
     //down point
-    objPoints.at<double>(0,4)=0;
-    objPoints.at<double>(1,4)=m_radius*1.;
-    objModel->update();
+    points3D.at<double>(0,4)=0;
+    points3D.at<double>(1,4)=m_radius*1.;
+    image3DModel->update();
 }
