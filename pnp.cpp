@@ -117,6 +117,7 @@ void PnP::recoveryObskur()
 
     cv::Mat rotationMatrix;
     cv::Rodrigues(rotation,rotationMatrix);
+    std::cout<<rotationMatrix<<std::endl;
 
     std::vector<cv::Point2d> temp;
     for (int i=0; i<newObjPoints3d.size(); i++) {
@@ -135,18 +136,33 @@ void PnP::recoveryObskur()
     cv::line(image,temp.at(4),temp.at(1),color,2);
     emit newFrame(image);
     recovery2DObskurModel->update();
-    //https://ru.wikipedia.org/wiki/%D0%9C%D0%B0%D1%82%D1%80%D0%B8%D1%86%D0%B0_%D0%BF%D0%BE%D0%B2%D0%BE%D1%80%D0%BE%D1%82%D0%B0#%D0%9C%D0%B0%D1%82%D1%80%D0%B8%D1%86%D0%B0_%D0%BF%D0%BE%D0%B2%D0%BE%D1%80%D0%BE%D1%82%D0%B0_%D0%B2_%D1%82%D1%80%D1%91%D1%85%D0%BC%D0%B5%D1%80%D0%BD%D0%BE%D0%BC_%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B5
-   // https://fossies.org/linux/opencv/modules/calib3d/src/calibration.cpp
-    double alfa=qDegreesToRadians(rotation.at<double>(0)); //вокруг х по ширине кадра
-    double betta=/*qDegreesToRadians*/(rotation.at<double>(1)); //вокруг y по высоте кадра
-    double gamma=/*qDegreesToRadians*/(rotation.at<double>(2)); //вокруг z от центра КУ к обьекту
-    cv::Mat myRotation=cv::Mat(3,3,CV_64FC1);
-    myRotation=cv::Mat::zeros(myRotation.rows,myRotation.cols,myRotation.type());
-    myRotation.at<double>(0,0)=qCos(betta)*qCos(gamma);
-    myRotation.at<double>(0,1)=-qCos(betta)*qSin(gamma);
-    myRotation.at<double>(0,2)=qSin(betta);
-    std::cout<<"myRotation"<<myRotation<<std::endl;
-    std::cout<<"rotationMatrix"<<rotationMatrix<<std::endl;
+
+    cv::Mat projectionMatrix=cv::Mat(3,4,CV_32FC1);
+    /*
+    r0  r1  r2  tv0
+    r3  r4  r5  tv1
+    r6  r7  r8  tv2
+     */
+    for (int i=0; i<3; i++)
+        for (int j=0; j<3; j++)
+            projectionMatrix.at<double>(i,j)=rotationMatrix.at<double>(i,j);
+    for (int i=0; i<3; i++)
+        projectionMatrix.at<double>(3,i)=translation.at<double>(i);
+    for (int i=0; i<3; i++)
+        for (int j=0; j<4; j++) {
+            std::cout<<projectionMatrix.at<double>(i,j)<<std::endl;
+        }
+
+cv::Mat tmp,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6;
+
+    cv::decomposeProjectionMatrix(projectionMatrix,*cameraMatrix,rotation,translation,tmp3,tmp4,tmp5,tmp6);
+    std::cout<<tmp<<std::endl;
+    std::cout<<tmp1<<std::endl;
+    std::cout<<tmp2<<std::endl;
+    std::cout<<tmp3<<std::endl;
+    std::cout<<tmp4<<std::endl;
+    std::cout<<tmp5<<std::endl;
+    std::cout<<tmp6<<std::endl;
 }
 
 void PnP::recoveryOpenCV()
