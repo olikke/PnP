@@ -137,32 +137,42 @@ void PnP::recoveryObskur()
     emit newFrame(image);
     recovery2DObskurModel->update();
 
-    cv::Mat projectionMatrix=cv::Mat(3,4,CV_32FC1);
-    /*
-    r0  r1  r2  tv0
-    r3  r4  r5  tv1
-    r6  r7  r8  tv2
+    /*разборки с rvec
+     rvec это единичный вектор * угол Teta
+     Едининчный вектор - это ось, вокруг которой мы поворачиваем на угол Тета
+     Тогда угол Teta = КОРЕНЬ(rvec[0]*rvec[0]+rvec[1]*rvec[1]+rvec[2]*rvec[2])
+     rvec1 = rvec/Teta = (x,y,z)
+     Тогда матрица вращения (которую можно расчитать Родригесом) CT - Cos(Teta); ST - Sin(Teta)
+     CT+(1-CT)x²        (1-CT)xy-STz       (1-CT)xz+STy
+     (1-CT)yx+STz      CT+(1-CT)y²      (1-CT)yz-STx
+     (1-CT)zx-STy       (1-CT)zy+STx    CT+(1-CT)z²
+
      */
-    for (int i=0; i<3; i++)
-        for (int j=0; j<3; j++)
-            projectionMatrix.at<double>(i,j)=rotationMatrix.at<double>(i,j);
-    for (int i=0; i<3; i++)
-        projectionMatrix.at<double>(3,i)=translation.at<double>(i);
-    for (int i=0; i<3; i++)
-        for (int j=0; j<4; j++) {
-            std::cout<<projectionMatrix.at<double>(i,j)<<std::endl;
-        }
 
-cv::Mat tmp,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6;
+     double teta=qSqrt(qPow(rotation.at<double>(0),2)+qPow(rotation.at<double>(1),2)+qPow(rotation.at<double>(2),2));
+  //   rotation=rotation/teta;
+     std::cout<<"normRotation"<<rotation/teta<<std::endl;
+     std::cout<<"Teta"<<teta<<std::endl;
+     double alfa=qAtan(rotation.at<double>(0)/rotation.at<double>(2));
+     double betta=qAtan(rotation.at<double>(1)/rotation.at<double>(2));
+     double gamma=qAtan(rotation.at<double>(0)/rotation.at<double>(1));
+     std::cout<<"alfa:"<<qRadiansToDegrees(alfa)<<" betta: "<<qRadiansToDegrees(betta)<<" gamma: "<<qRadiansToDegrees(gamma)<<std::endl;
 
-    cv::decomposeProjectionMatrix(projectionMatrix,*cameraMatrix,rotation,translation,tmp3,tmp4,tmp5,tmp6);
-    std::cout<<tmp<<std::endl;
-    std::cout<<tmp1<<std::endl;
-    std::cout<<tmp2<<std::endl;
-    std::cout<<tmp3<<std::endl;
-    std::cout<<tmp4<<std::endl;
-    std::cout<<tmp5<<std::endl;
-    std::cout<<tmp6<<std::endl;
+
+
+    //https://stackoverflow-com.translate.goog/questions/54970421/python-opencv-solvepnp-convert-to-euler-angles/55033361?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc#55033361
+
+   // https://learnopencv-com.translate.goog/rotation-matrix-to-euler-angles/?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
+
+
+    //https://www.youtube.com/watch?v=FpPA9RLAggY
+//    double roll = 180*qAtan2(-rotationMatrix.at<double>(2,1), rotationMatrix.at<double>(2,2))/M_PI;
+//            double pitch = 180*qAsin(rotationMatrix.at<double>(2,0))/M_PI;
+//            double yaw = 180*qAtan2(-rotationMatrix.at<double>(1,0), rotationMatrix.at<double>(0,0))/M_PI;
+//            qDebug()<<roll<<pitch<<yaw;
+
+
+
 }
 
 void PnP::recoveryOpenCV()

@@ -48,6 +48,7 @@ public:
     Q_INVOKABLE void recoveryObskur(); //проецирование по результатам rvec и tvec уравнением камеры Обскура
 
     Q_INVOKABLE MatModel* getRecoveryObskur() {return recovery2DObskurModel;}
+
 signals:
     void newFrame(const cv::Mat frame);
     void pointNumbChanged(int);
