@@ -153,13 +153,71 @@ void PnP::recoveryObskur()
   //   rotation=rotation/teta;
      std::cout<<"normRotation"<<rotation/teta<<std::endl;
      std::cout<<"Teta"<<teta<<std::endl;
-     double alfa=qAtan(rotation.at<double>(0)/rotation.at<double>(2));
-     double betta=qAtan(rotation.at<double>(1)/rotation.at<double>(2));
-     double gamma=qAtan(rotation.at<double>(0)/rotation.at<double>(1));
-     std::cout<<"alfa:"<<qRadiansToDegrees(alfa)<<" betta: "<<qRadiansToDegrees(betta)<<" gamma: "<<qRadiansToDegrees(gamma)<<std::endl;
+     double alfa=qRadiansToDegrees(qAcos(rotation.at<double>(0)/teta));
+     double betta=qRadiansToDegrees(qAcos(rotation.at<double>(1)/teta));
+     double gamma=qRadiansToDegrees(qAcos(rotation.at<double>(2)/teta));
+     std::cout<<"alfa:"<<alfa<<" betta: "<<betta<<" gamma: "<<gamma<<std::endl;
 
+     QVector<QPoint> s;
+     for (int i=0; i<points2D.cols; i++)
+         s.push_back(QPoint(points2D.at<double>(0,i),points2D.at<double>(1,i)));
+    QPolygon src=QPolygon(s);
 
+    qDebug()<<"src"<<src;
 
+    qDebug()<<qSqrt(qPow(src.at(1).x()-src.at(2).x(),2)+qPow(src.at(1).y()-src.at(2).y(),2))
+              <<qSqrt(qPow(src.at(2).x()-src.at(3).x(),2)+qPow(src.at(2).y()-src.at(3).y(),2))
+                <<qSqrt(qPow(src.at(3).x()-src.at(4).x(),2)+qPow(src.at(3).y()-src.at(4).y(),2))
+                  <<qSqrt(qPow(src.at(4).x()-src.at(1).x(),2)+qPow(src.at(4).y()-src.at(1).y(),2));
+
+    QPolygon polygon;
+
+    {
+        QTransform transform=QTransform();
+        transform.translate(src.at(0).x(),src.at(0).y());
+        transform.rotate(betta,Qt::XAxis);
+        transform.translate(-src.at(0).x(),-src.at(0).y());
+        polygon=transform.map(src);
+    }
+    qDebug()<<"rotate betta"<<betta<<polygon;
+
+    {
+        QTransform transform=QTransform();
+        transform.translate(polygon.at(0).x(),polygon.at(0).y());
+        transform.rotate(-gamma,Qt::YAxis);
+        transform.translate(-polygon.at(0).x(),-polygon.at(0).y());
+        polygon=transform.map(src);
+    }
+    qDebug()<<"rotate gamma"<<gamma<<polygon;
+
+    {
+        QTransform transform=QTransform();
+        transform.translate(polygon.at(0).x(),polygon.at(0).y());
+        transform.rotate(alfa,Qt::ZAxis);
+        transform.translate(-polygon.at(0).x(),-polygon.at(0).y());
+        polygon=transform.map(src);
+    }
+    qDebug()<<"rotate alfa"<<alfa<<polygon;
+
+//    {
+//        QTransform transform=QTransform();
+//        transform.translate(polygon.at(0).x(),polygon.at(0).y());
+//        transform.rotate(-qRadiansToDegrees(teta),Qt::ZAxis);
+//        transform.translate(-polygon.at(0).x(),-polygon.at(0).y());
+//        polygon=transform.map(src);
+//    }
+//    qDebug()<<"rotate teta"<<qRadiansToDegrees(teta)<<polygon;
+
+    qDebug()<<qSqrt(qPow(polygon.at(1).x()-polygon.at(2).x(),2)+qPow(polygon.at(1).y()-polygon.at(2).y(),2))
+              <<qSqrt(qPow(polygon.at(2).x()-polygon.at(3).x(),2)+qPow(polygon.at(2).y()-polygon.at(3).y(),2))
+                <<qSqrt(qPow(polygon.at(3).x()-polygon.at(4).x(),2)+qPow(polygon.at(3).y()-polygon.at(4).y(),2))
+                  <<qSqrt(qPow(polygon.at(4).x()-polygon.at(1).x(),2)+qPow(polygon.at(4).y()-polygon.at(1).y(),2));
+
+    cv::line(image,cv::Point(polygon.at(1).x(),polygon.at(1).y()),cv::Point(polygon.at(2).x(),polygon.at(2).y()),cv::Scalar(255));
+cv::line(image,cv::Point(polygon.at(2).x(),polygon.at(2).y()),cv::Point(polygon.at(3).x(),polygon.at(3).y()),cv::Scalar(255));
+cv::line(image,cv::Point(polygon.at(3).x(),polygon.at(3).y()),cv::Point(polygon.at(4).x(),polygon.at(4).y()),cv::Scalar(255));
+cv::line(image,cv::Point(polygon.at(4).x(),polygon.at(4).y()),cv::Point(polygon.at(1).x(),polygon.at(1).y()),cv::Scalar(255));
+   emit newFrame(image);
     //https://stackoverflow-com.translate.goog/questions/54970421/python-opencv-solvepnp-convert-to-euler-angles/55033361?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc#55033361
 
    // https://learnopencv-com.translate.goog/rotation-matrix-to-euler-angles/?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
@@ -170,6 +228,7 @@ void PnP::recoveryObskur()
 //            double pitch = 180*qAsin(rotationMatrix.at<double>(2,0))/M_PI;
 //            double yaw = 180*qAtan2(-rotationMatrix.at<double>(1,0), rotationMatrix.at<double>(0,0))/M_PI;
 //            qDebug()<<roll<<pitch<<yaw;
+
 
 
 
