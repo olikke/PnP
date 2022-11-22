@@ -7,6 +7,7 @@
 #include <QTransform>
 #include <QPolygon>
 #include <QDateTime>
+#include <QMatrix4x4>
 #include <opencv2/opencv.hpp>
 #include "matModel.h"
 #include "appconfigMini.h"
@@ -48,6 +49,8 @@ public:
     Q_INVOKABLE void recoveryObskur(); //проецирование по результатам rvec и tvec уравнением камеры Обскура
 
     Q_INVOKABLE MatModel* getRecoveryObskur() {return recovery2DObskurModel;}
+
+    Q_INVOKABLE void reTransform();
 
 signals:
     void newFrame(const cv::Mat frame);

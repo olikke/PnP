@@ -1,4 +1,4 @@
-#include "pnp.h"
+﻿#include "pnp.h"
 //https://stackoverflow-com.translate.goog/questions/45458665/get-correct-rvec-and-tvec-for-camera-pose-estimation-from-solvpnp-function-in-op?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
 //https://docs.opencv.org/4.x/d9/dab/tutorial_homography.html
 //https://gist-github-com.translate.goog/dbcesar/421c4c291b229615cc6a?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
@@ -104,6 +104,7 @@ void PnP::start()
     transModel->update();
     m_pnpReady=true;
     emit pnpReadyChanged();
+  //  reTransform();
 }
 
 void PnP::recoveryObskur()
@@ -135,8 +136,11 @@ void PnP::recoveryObskur()
     cv::line(image,temp.at(3),temp.at(4),color,2);
     cv::line(image,temp.at(4),temp.at(1),color,2);
     emit newFrame(image);
-    recovery2DObskurModel->update();
+    recovery2DObskurModel->update();   
+}
 
+void PnP::reTransform()
+{
     /*разборки с rvec
      rvec это единичный вектор * угол Teta
      Едининчный вектор - это ось, вокруг которой мы поворачиваем на угол Тета
@@ -148,7 +152,6 @@ void PnP::recoveryObskur()
      (1-CT)zx-STy       (1-CT)zy+STx    CT+(1-CT)z²
 
      */
-
      double teta=qSqrt(qPow(rotation.at<double>(0),2)+qPow(rotation.at<double>(1),2)+qPow(rotation.at<double>(2),2));
   //   rotation=rotation/teta;
      std::cout<<"normRotation"<<rotation/teta<<std::endl;
@@ -158,80 +161,33 @@ void PnP::recoveryObskur()
      double gamma=qRadiansToDegrees(qAcos(rotation.at<double>(2)/teta));
      std::cout<<"alfa:"<<alfa<<" betta: "<<betta<<" gamma: "<<gamma<<std::endl;
 
-     QVector<QPoint> s;
+     cv::Mat rotationMatrix;
+     cv::Rodrigues(rotation,rotationMatrix);
+
+
+
+     std::vector<cv::Mat> newPoints2d;
      for (int i=0; i<points2D.cols; i++)
-         s.push_back(QPoint(points2D.at<double>(0,i),points2D.at<double>(1,i)));
-    QPolygon src=QPolygon(s);
+         newPoints2d.push_back((cv::Mat_<double>(1,3)
+                                   <<points2D.at<double>(0,i),
+                                   points2D.at<double>(1,i),
+                                   1));
 
-    qDebug()<<"src"<<src;
+     std::cout<<"points2d"<<newPoints2d.at(0)<<std::endl;
+     std::cout<<"cameraMatrix"<<*cameraMatrix<<std::endl;
 
-    qDebug()<<qSqrt(qPow(src.at(1).x()-src.at(2).x(),2)+qPow(src.at(1).y()-src.at(2).y(),2))
-              <<qSqrt(qPow(src.at(2).x()-src.at(3).x(),2)+qPow(src.at(2).y()-src.at(3).y(),2))
-                <<qSqrt(qPow(src.at(3).x()-src.at(4).x(),2)+qPow(src.at(3).y()-src.at(4).y(),2))
-                  <<qSqrt(qPow(src.at(4).x()-src.at(1).x(),2)+qPow(src.at(4).y()-src.at(1).y(),2));
+     cv::Mat tr=(cv::Mat_<double>(1,3)<<translation.at<double>(0),translation.at<double>(1),translation.at<double>(2));
 
-    QPolygon polygon;
+     std::cout<<"1"<<translation<<std::endl;
+     std::cout<<"2"<<tr<<std::endl;
 
-    {
-        QTransform transform=QTransform();
-        transform.translate(src.at(0).x(),src.at(0).y());
-        transform.rotate(betta,Qt::XAxis);
-        transform.translate(-src.at(0).x(),-src.at(0).y());
-        polygon=transform.map(src);
-    }
-    qDebug()<<"rotate betta"<<betta<<polygon;
-
-    {
-        QTransform transform=QTransform();
-        transform.translate(polygon.at(0).x(),polygon.at(0).y());
-        transform.rotate(-gamma,Qt::YAxis);
-        transform.translate(-polygon.at(0).x(),-polygon.at(0).y());
-        polygon=transform.map(src);
-    }
-    qDebug()<<"rotate gamma"<<gamma<<polygon;
-
-    {
-        QTransform transform=QTransform();
-        transform.translate(polygon.at(0).x(),polygon.at(0).y());
-        transform.rotate(alfa,Qt::ZAxis);
-        transform.translate(-polygon.at(0).x(),-polygon.at(0).y());
-        polygon=transform.map(src);
-    }
-    qDebug()<<"rotate alfa"<<alfa<<polygon;
-
-//    {
-//        QTransform transform=QTransform();
-//        transform.translate(polygon.at(0).x(),polygon.at(0).y());
-//        transform.rotate(-qRadiansToDegrees(teta),Qt::ZAxis);
-//        transform.translate(-polygon.at(0).x(),-polygon.at(0).y());
-//        polygon=transform.map(src);
-//    }
-//    qDebug()<<"rotate teta"<<qRadiansToDegrees(teta)<<polygon;
-
-    qDebug()<<qSqrt(qPow(polygon.at(1).x()-polygon.at(2).x(),2)+qPow(polygon.at(1).y()-polygon.at(2).y(),2))
-              <<qSqrt(qPow(polygon.at(2).x()-polygon.at(3).x(),2)+qPow(polygon.at(2).y()-polygon.at(3).y(),2))
-                <<qSqrt(qPow(polygon.at(3).x()-polygon.at(4).x(),2)+qPow(polygon.at(3).y()-polygon.at(4).y(),2))
-                  <<qSqrt(qPow(polygon.at(4).x()-polygon.at(1).x(),2)+qPow(polygon.at(4).y()-polygon.at(1).y(),2));
-
-    cv::line(image,cv::Point(polygon.at(1).x(),polygon.at(1).y()),cv::Point(polygon.at(2).x(),polygon.at(2).y()),cv::Scalar(255));
-cv::line(image,cv::Point(polygon.at(2).x(),polygon.at(2).y()),cv::Point(polygon.at(3).x(),polygon.at(3).y()),cv::Scalar(255));
-cv::line(image,cv::Point(polygon.at(3).x(),polygon.at(3).y()),cv::Point(polygon.at(4).x(),polygon.at(4).y()),cv::Scalar(255));
-cv::line(image,cv::Point(polygon.at(4).x(),polygon.at(4).y()),cv::Point(polygon.at(1).x(),polygon.at(1).y()),cv::Scalar(255));
-   emit newFrame(image);
-    //https://stackoverflow-com.translate.goog/questions/54970421/python-opencv-solvepnp-convert-to-euler-angles/55033361?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc#55033361
-
-   // https://learnopencv-com.translate.goog/rotation-matrix-to-euler-angles/?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
-
-
-    //https://www.youtube.com/watch?v=FpPA9RLAggY
-//    double roll = 180*qAtan2(-rotationMatrix.at<double>(2,1), rotationMatrix.at<double>(2,2))/M_PI;
-//            double pitch = 180*qAsin(rotationMatrix.at<double>(2,0))/M_PI;
-//            double yaw = 180*qAtan2(-rotationMatrix.at<double>(1,0), rotationMatrix.at<double>(0,0))/M_PI;
-//            qDebug()<<roll<<pitch<<yaw;
-
-
-
-
+     cv::Mat point3dNoRotate=cv::Mat(3,5,CV_64F);
+     for (int i=0; i<points3D.cols; i++) {
+         point3dNoRotate.col(i)=points3D.col(i)+translation;
+     }
+     std::cout<<point3dNoRotate <<std::endl;
+     point3dNoRotate=point3dNoRotate*rotationMatrix;
+   //  std::cout<<std::endl;
 }
 
 void PnP::recoveryOpenCV()
