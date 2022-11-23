@@ -10,6 +10,7 @@ import "qrc:/QML/ElementBase"
 import "qrc:/QML/Calibration"
 import "qrc:/QML/Camera"
 import "qrc:/QML/PnP"
+import "qrc:/QML/DockingArea"
 
 ApplicationWindow {
     id: window
@@ -53,6 +54,10 @@ ApplicationWindow {
             Tabbutton {
                 text: "Позиционирование"
             }
+
+            Tabbutton {
+                text: "Стыковка"
+            }
         }
     }
 
@@ -81,6 +86,11 @@ ApplicationWindow {
         PnPPanel{
             clip: true
             id: pnpPanel
+        }
+
+        DocPanel{
+            clip:true
+            id: docPanel
         }
     }
 

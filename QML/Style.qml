@@ -48,7 +48,7 @@ QtObject{
     property int cardHeight: 62 // высота одинарной карточки (панели управления операторов)
     property int panelsMargins: 5 // отступы от всех сторон окна и расстояния между всем и вся в страницах блоков
     property int btnHeight: 42
-    property int iconSize: btnHeight*0.8
+    property int iconSize: btnHeight*0.7
     property int sidePanel: 350
 }
 

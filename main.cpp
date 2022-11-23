@@ -11,6 +11,7 @@
 #include "folderBackend.h"
 #include "calibrate.h"
 #include "pnp.h"
+#include "docking.h"
 #include "matrixmanager.h"
 
 int main(int argc, char *argv[])
@@ -55,6 +56,16 @@ int main(int argc, char *argv[])
 
     QObject::connect(pnp,&PnP::newFrame,pnpProvider,&ImageProvider::updateImage);
     QObject::connect(appConfig,&AppConfigMini::squareSizeChanged,pnp,&PnP::squareSizeChanged);
+
+    Docking* docking=new Docking(appConfig,matManager,&app);
+    context->setContextProperty("docking",docking);
+
+    ImageProvider* dockProvider = new ImageProvider(&app,QSize(appConfig->getFrameWidth(),appConfig->getFrameHeight()));
+    context->setContextProperty("dockProvider",dockProvider);
+    engine.addImageProvider("dlive",dockProvider);
+
+    QObject::connect(docking,&Docking::newFrame,dockProvider,&ImageProvider::updateImage);
+
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())  return -1;

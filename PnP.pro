@@ -26,7 +26,8 @@ SOURCES += \
     calibrate.cpp \
     matModel.cpp \
     pnp.cpp \
-    matrixmanager.cpp
+    matrixmanager.cpp \
+    docking.cpp
 
 RESOURCES += qml.qrc
 
@@ -63,4 +64,5 @@ HEADERS += \
     calibrate.h \
     matModel.h \
     pnp.h \
-    matrixmanager.h
+    matrixmanager.h \
+    docking.h

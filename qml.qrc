@@ -51,5 +51,8 @@
         <file>Matrix.qml</file>
         <file>ASSETS/icon/blur_off.svg</file>
         <file>ASSETS/icon/blur_on.svg</file>
+        <file>QML/DockingArea/DocPanel.qml</file>
+        <file>QML/DockingArea/DocControl.qml</file>
+        <file>ASSETS/icon/circle.svg</file>
     </qresource>
 </RCC>
