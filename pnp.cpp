@@ -7,6 +7,9 @@
 //https://stackoverflow-com.translate.goog/questions/12299870/computing-x-y-coordinate-3d-from-image-point?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
 //https://stackoverflow.com/questions/12299870/computing-x-y-coordinate-3d-from-image-point
 
+//MAIN
+//http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/index.htm
+
 PnP::PnP(AppConfigMini* appConfig, MatrixManager* matManager,QObject *parent) :
     QObject(parent),
     m_appConfig(appConfig),
