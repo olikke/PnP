@@ -29,6 +29,7 @@ void Docking::findCircle()
 //    cv::dilate(image3,image3,500);
     cv::imshow("threshold",image3);
 
+
     cv::Mat image2=image3.clone();
     cv::SimpleBlobDetector::Params params;
     params.filterByArea=true;
@@ -80,32 +81,30 @@ void Docking::findCircle()
     for (int i=0; i<4; i++) {
         cv::line(workImage,vertices[i],vertices[(i+1)%4],cv::Scalar(255),2);
     }
-    std::cout<< contour<<std::endl;
-    //давай попробуем разделить длину окружности на 4 и так поставить точки
-    std::vector<cv::Point> pointsInContour;
-    pointsInContour.push_back(contour.front());
-     double ss=qSqrt(qPow(contour.front().x-contour.back().x,2)+qPow(contour.front().y-contour.back().y ,2));
-     int k=1;
-     double found=maxLen*k/4;
-    for (size_t i=1; i<contour.size(); i++) {
-       ss+=qSqrt(qPow(contour.at(i-1).x-contour.at(i).x,2)+qPow(contour.at(i-1).y-contour.at(i).y ,2));
-       if (ss>found) {
-           pointsInContour.push_back(contour.at(i-1));
-           k++;
-           found=maxLen*k/4;
-       }
-    }
-    std::cout<<"realL="<<maxLen<<" calcL="<<ss<<std::endl;
-    for (size_t i=0; i<pointsInContour.size(); i++) {
-        cv::circle(workImage,pointsInContour.at(i),5,cv::Scalar(255),2);
-    }
-    cv::line(workImage,pointsInContour.at(0),pointsInContour.at(2),cv::Scalar(255),2);
-    cv::line(workImage,pointsInContour.at(1),pointsInContour.at(3),cv::Scalar(255),2);
-
-
-
-
+    //std::cout<< contour<<std::endl;
     cv::imshow("contours",workImage);
+
+    //lets try found center of circle
+    cv::Mat newFrame=cv::Mat(image3.rows,image3.cols,image3.type());
+    cv::drawContours(newFrame,contours,number,cv::Scalar(255));
+    //find extreme point - left, right, up, down
+    std::vector<int> extremeValue{newFrame.cols,0,newFrame.rows,0};
+    std::vector<cv::Point> extremePoint{cv::Point(),cv::Point(),cv::Point(),cv::Point()};
+    for (size_t i=0; i<contour.size(); i++) {
+        cv::Point p=contour.at(i);
+        if (p.x<extremeValue.at(0)) {extremePoint.at(0)=p; extremeValue.at(0)=p.x;}
+        if (p.x>extremeValue.at(1)) {extremePoint.at(1)=p; extremeValue.at(1)=p.x;}
+        if (p.y<extremeValue.at(2)) {extremePoint.at(2)=p; extremeValue.at(2)=p.y;}
+        if (p.y>extremeValue.at(3)) {extremePoint.at(3)=p; extremeValue.at(3)=p.y;}
+    }
+    for (size_t i=0; i<4; i++) cv::circle(newFrame,extremePoint.at(i),5,cv::Scalar(255));
+    std::vector<cv::Point2f> extremeCenter{cv::Point2f(),cv::Point2f(),cv::Point2f(),cv::Point2f()};
+    std::vector<float> extremeRadius(0,4);
+    cv::minEnclosingCircle()
+
+
+
+    cv::imshow("newframe",newFrame);
 }
 
 void Docking::setThreshold(int val)
