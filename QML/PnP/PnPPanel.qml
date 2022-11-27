@@ -28,6 +28,7 @@ Row {
                 source=""
                 source="image://plive/image"
             }
+
             Target{
                 id: trg
                 number: pnp.pointNumb

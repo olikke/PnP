@@ -7,6 +7,10 @@
 //https://stackoverflow-com.translate.goog/questions/12299870/computing-x-y-coordinate-3d-from-image-point?_x_tr_sl=en&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=sc
 //https://stackoverflow.com/questions/12299870/computing-x-y-coordinate-3d-from-image-point
 
+//MAIN
+//http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/index.htm
+//https://ru.stackoverflow.com/questions/756331/%D0%9F%D0%BE%D0%B2%D0%BE%D1%80%D0%BE%D1%82-%D0%BE%D0%B1%D1%8A%D0%B5%D0%BA%D1%82%D0%B0-%D0%B2-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B5
+
 PnP::PnP(AppConfigMini* appConfig, MatrixManager* matManager,QObject *parent) :
     QObject(parent),
     m_appConfig(appConfig),
@@ -104,7 +108,7 @@ void PnP::start()
     transModel->update();
     m_pnpReady=true;
     emit pnpReadyChanged();
-  //  reTransform();
+    reTransform();
 }
 
 void PnP::recoveryObskur()
@@ -149,11 +153,8 @@ void PnP::reTransform()
      Тогда матрица вращения (которую можно расчитать Родригесом) CT - Cos(Teta); ST - Sin(Teta)
      CT+(1-CT)x²        (1-CT)xy-STz       (1-CT)xz+STy
      (1-CT)yx+STz      CT+(1-CT)y²      (1-CT)yz-STx
-     (1-CT)zx-STy       (1-CT)zy+STx    CT+(1-CT)z²
-
-     */
+     (1-CT)zx-STy       (1-CT)zy+STx    CT+(1-CT)z²*/
      double teta=qSqrt(qPow(rotation.at<double>(0),2)+qPow(rotation.at<double>(1),2)+qPow(rotation.at<double>(2),2));
-  //   rotation=rotation/teta;
      std::cout<<"normRotation"<<rotation/teta<<std::endl;
      std::cout<<"Teta"<<teta<<std::endl;
      double alfa=qRadiansToDegrees(qAcos(rotation.at<double>(0)/teta));
@@ -161,33 +162,62 @@ void PnP::reTransform()
      double gamma=qRadiansToDegrees(qAcos(rotation.at<double>(2)/teta));
      std::cout<<"alfa:"<<alfa<<" betta: "<<betta<<" gamma: "<<gamma<<std::endl;
 
+     //rotation matrix to single vector and angle
+     //teta = acos(( m00 + m11 + m22 - 1)/2)
+     //единичный вектор
+     //rvec[0] = (m21 - m12)/√((m21 - m12)2+(m02 - m20)2+(m10 - m01)2)
+     //rvec[1] = (m02 - m20)/√((m21 - m12)2+(m02 - m20)2+(m10 - m01)2)
+     //rvec[2] = (m10 - m01)/√((m21 - m12)2+(m02 - m20)2+(m10 - m01)2)
+
+     //возьмем точку с координатами rvec[0],rvec[1],rvec[2], затем повернёмся на углы alfa, betta & gamma.
+     //тогда координаты этой точки д.б. rvec[0],0,0??
+
      cv::Mat rotationMatrix;
      cv::Rodrigues(rotation,rotationMatrix);
+     cv::Mat m1,m2,m3,m4,m5;
+
+     //https://github.com/opencv/opencv/blob/master/samples/cpp/tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp
+     //opencv euler rotation y-z-x x-width; y-height; z-distance
+     cv::Vec3d v=cv::RQDecomp3x3(rotationMatrix,m1,m2,m3,m4,m5);
+     std::cout<<"v"<<v<<std::endl;
+     std::cout<<"m1"<<m1<<std::endl;
+     std::cout<<"m2"<<m2<<std::endl;
+     std::cout<<"m3"<<m3<<std::endl;
+     std::cout<<"m4"<<m4<<std::endl;
+     std::cout<<"m5"<<m5<<std::endl;
 
 
+     QRect srcRect=QRect(-m_radius,-m_radius,m_radius*2,m_radius*2);
+     QTransform transform=QTransform();
+     transform.rotate(v[0],Qt::YAxis);
+     transform.rotate(-v[1],Qt::ZAxis);
+     transform.rotate(-v[2],Qt::XAxis);
+     transform.rotateRadians(teta,Qt::XAxis);
+     QPolygon polygon=transform.mapToPolygon(srcRect);
+     qDebug()<<polygon;
+     //далее формулу обскура но без ротации
+     cv::Mat mmm=cv::Mat(3,1,CV_64FC1);
+     mmm.at<double>(0,0)=polygon.point(0).x()/*+translation.at<double>(0)*/;
+     mmm.at<double>(1,0)=polygon.point(0).y()/*+translation.at<double>(1);*/;
+     mmm.at<double>(2,0)=0/*translation.at<double>(2);*/;
+     cv::Mat m=cameraMatrix->inv()*(mmm+translation);
+     std::cout<<"po"<<m<<std::endl;
 
-     std::vector<cv::Mat> newPoints2d;
-     for (int i=0; i<points2D.cols; i++)
-         newPoints2d.push_back((cv::Mat_<double>(1,3)
-                                   <<points2D.at<double>(0,i),
-                                   points2D.at<double>(1,i),
-                                   1));
 
-     std::cout<<"points2d"<<newPoints2d.at(0)<<std::endl;
-     std::cout<<"cameraMatrix"<<*cameraMatrix<<std::endl;
+//     std::vector<cv::Point2f> src;
+//     src.push_back(cv::Point2f(-m_radius,-m_radius));
+//     src.push_back(cv::Point2f(m_radius,-m_radius));
+//     src.push_back(cv::Point2f(m_radius,m_radius));
+//     src.push_back(cv::Point2f(-m_radius,m_radius));
+//     std::vector<cv::Point2f> dst;
+//     dst.push_back(cv::Point2f(polygon.point(0).x(),polygon.point(0).y()));
+//     dst.push_back(cv::Point2f(polygon.point(1).x(),polygon.point(1).y()));
+//     dst.push_back(cv::Point2f(polygon.point(2).x(),polygon.point(2).y()));
+//     dst.push_back(cv::Point2f(polygon.point(3).x(),polygon.point(3).y()));
+//     cv::Mat homo=cv::findHomography(src,dst,CV_RANSAC,5.);
+//     cv::warpPerspective(image,image,homo,cv::Size());
 
-     cv::Mat tr=(cv::Mat_<double>(1,3)<<translation.at<double>(0),translation.at<double>(1),translation.at<double>(2));
 
-     std::cout<<"1"<<translation<<std::endl;
-     std::cout<<"2"<<tr<<std::endl;
-
-     cv::Mat point3dNoRotate=cv::Mat(3,5,CV_64F);
-     for (int i=0; i<points3D.cols; i++) {
-         point3dNoRotate.col(i)=points3D.col(i)+translation;
-     }
-     std::cout<<point3dNoRotate <<std::endl;
-     point3dNoRotate=point3dNoRotate*rotationMatrix;
-   //  std::cout<<std::endl;
 }
 
 void PnP::recoveryOpenCV()
