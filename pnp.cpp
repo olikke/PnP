@@ -186,22 +186,53 @@ void PnP::reTransform()
      std::cout<<"m4"<<m4<<std::endl;
      std::cout<<"m5"<<m5<<std::endl;
 
+     //давай сначала найдем координаты в кадре без поворотов
+     cv::Mat rectangle=cv::Mat(3,5,CV_64FC1);
+     std::vector<cv::Mat> newObjPoints3d;
+     for (int i=0; i<points3D.cols; i++)
+         newObjPoints3d.push_back((cv::Mat_<double>(3,1)
+                                   <<points3D.at<double>(0,i),
+                                   points3D.at<double>(1,i),
+                                   1));
 
-     QRect srcRect=QRect(-m_radius,-m_radius,m_radius*2,m_radius*2);
+     for (int i=0; i<rectangle.cols; i++) {
+         rectangle.col(i)=*cameraMatrix*(newObjPoints3d.at(i)+translation);
+         rectangle.col(i)=rectangle.col(i)/rectangle.col(i).at<double>(2);
+     }
+    std::cout<<"rectangle"<<rectangle<<std::endl;
+    QVector<QPointF> srcv;
+    for (int i=0; i<rectangle.cols;i++)
+    srcv.push_back(QPointF(rectangle.col(i).at<double>(0),rectangle.col(i).at<double>(1)));
+
+     QPolygonF src=QPolygonF(srcv);
      QTransform transform=QTransform();
-     transform.rotate(v[0],Qt::YAxis);
-     transform.rotate(-v[1],Qt::ZAxis);
-     transform.rotate(-v[2],Qt::XAxis);
-     transform.rotateRadians(teta,Qt::XAxis);
-     QPolygon polygon=transform.mapToPolygon(srcRect);
-     qDebug()<<polygon;
-     //далее формулу обскура но без ротации
-     cv::Mat mmm=cv::Mat(3,1,CV_64FC1);
-     mmm.at<double>(0,0)=polygon.point(0).x()/*+translation.at<double>(0)*/;
-     mmm.at<double>(1,0)=polygon.point(0).y()/*+translation.at<double>(1);*/;
-     mmm.at<double>(2,0)=0/*translation.at<double>(2);*/;
-     cv::Mat m=cameraMatrix->inv()*(mmm+translation);
-     std::cout<<"po"<<m<<std::endl;
+     transform.translate(rectangle.col(0).at<double>(0),rectangle.col(0).at<double>(1));
+     transform.rotate(v[1],Qt::YAxis);
+     transform.rotate(v[2],Qt::ZAxis);
+     transform.rotate(v[0],Qt::XAxis);
+    transform.rotateRadians(M_PI/2-teta,Qt::XAxis);
+     transform.translate(-rectangle.col(0).at<double>(0),-rectangle.col(0).at<double>(1));
+
+
+
+
+ //
+     QPolygonF dst=transform.map(src);
+
+     cv::Scalar color=cv::Scalar(0x9b,0x03,0xe5);
+
+     cv::circle(image,cv::Point(dst.at(0).x(),dst.at(0).y()),5,color,2);
+     cv::line(image,cv::Point(dst.at(1).x(),dst.at(1).y()),cv::Point(dst.at(2).x(),dst.at(2).y()),color,2);
+     cv::line(image,cv::Point(dst.at(2).x(),dst.at(2).y()),cv::Point(dst.at(3).x(),dst.at(3).y()),color,2);
+     cv::line(image,cv::Point(dst.at(3).x(),dst.at(3).y()),cv::Point(dst.at(4).x(),dst.at(4).y()),color,2);
+     cv::line(image,cv::Point(dst.at(4).x(),dst.at(4).y()),cv::Point(dst.at(1).x(),dst.at(1).y()),color,2);
+     emit newFrame(image);
+     recovery2DObskurModel->update();
+
+
+     qDebug()<<"src"<<src;
+     qDebug()<<"poli"<<dst;
+
 
 
 //     std::vector<cv::Point2f> src;
